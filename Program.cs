@@ -22,6 +22,12 @@ namespace MovieBookingBackend
                 );
             #endregion
 
+            #region Repositories
+            #endregion
+
+            #region Services
+            #endregion
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
