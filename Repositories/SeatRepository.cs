@@ -79,7 +79,7 @@ namespace MovieBookingBackend.Repositories
         /// <exception cref="UnableToDeleteSeatException">Thrown if the seats cannot be deleted</exception>
         public async Task<bool> DeleteRange(int key)
         {
-            var seats = (await GetAll()).ToList().Where(s => s.Id == key);
+            var seats = (await GetAll()).ToList().Where(s => s.ShowetimeId == key);
             if (seats.Count() <= 0)
             {
                 throw new NoSeatsFoundException("No seats found for the given constraint");

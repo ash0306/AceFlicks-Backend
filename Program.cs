@@ -1,5 +1,10 @@
 using Microsoft.EntityFrameworkCore;
 using MovieBookingBackend.Contexts;
+using MovieBookingBackend.Interfaces;
+using MovieBookingBackend.Mappings;
+using MovieBookingBackend.Models;
+using MovieBookingBackend.Repositories;
+using MovieBookingBackend.Services;
 
 namespace MovieBookingBackend
 {
@@ -23,10 +28,21 @@ namespace MovieBookingBackend
             #endregion
 
             #region Repositories
+            builder.Services.AddScoped<IRepository<int, User>, UserRepository>();
+            builder.Services.AddScoped<IRepository<int, Movie>, MovieRepository>();
+            builder.Services.AddScoped<IRepository<int, Theatre>, TheatreRepository>();
+            builder.Services.AddScoped<IRepository<int, Showtime>, ShowtimeRepository>();
+            builder.Services.AddScoped<IRepository<int, Seat>, SeatRepository>();
+            builder.Services.AddScoped<IRepository<int, Booking>, BookingRepository>();
             #endregion
 
             #region Services
+            builder.Services.AddScoped<IUserAuthService, UserAuthService>();
+
+            builder.Services.AddScoped<ITokenService, TokenService>();
             #endregion
+
+            builder.Services.AddAutoMapper(typeof(MappingProfile));
 
             var app = builder.Build();
 
