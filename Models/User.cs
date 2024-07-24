@@ -1,7 +1,9 @@
-﻿using MovieBookingBackend.Models.Enums;
+﻿using Microsoft.EntityFrameworkCore;
+using MovieBookingBackend.Models.Enums;
 
 namespace MovieBookingBackend.Models
 {
+    [Index(nameof(Email), IsUnique = true)]
     public class User
     {
         public int Id { get; set; }

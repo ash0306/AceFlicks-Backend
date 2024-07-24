@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using MovieBookingBackend.Models;
+using MovieBookingBackend.Models.DTOs.Movie;
 using MovieBookingBackend.Models.DTOs.User;
 
 namespace MovieBookingBackend.Mappings
@@ -13,6 +14,11 @@ namespace MovieBookingBackend.Mappings
             CreateMap<User, UserDTO>().ReverseMap();
             CreateMap<User, UserLoginDTO>().ReverseMap();
             CreateMap<User, UserLoginReturnDTO>().ReverseMap();
+            #endregion
+
+            #region Movie Mappings
+            CreateMap<Movie, MovieDTO>().ReverseMap();
+            CreateMap<Movie, UpdateMovieDTO>().ReverseMap();
             #endregion
         }
     }
