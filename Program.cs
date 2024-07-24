@@ -1,3 +1,6 @@
+using Microsoft.EntityFrameworkCore;
+using MovieBookingBackend.Contexts;
+
 namespace MovieBookingBackend
 {
     public class Program
@@ -12,6 +15,12 @@ namespace MovieBookingBackend
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+
+            #region Contexts
+            builder.Services.AddDbContext<MovieBookingContext>(
+                options => options.UseSqlServer(builder.Configuration.GetConnectionString("defaultConnection"))
+                );
+            #endregion
 
             var app = builder.Build();
 
