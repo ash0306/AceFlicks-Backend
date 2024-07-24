@@ -7,8 +7,8 @@ namespace MovieBookingBackend.Models.DTOs.Movie
         [Required]
         public string Title { get; set; }
         public int Duration { get; set; } //in minutes
-        public DateTime StartDate { get; set; }
-        public DateTime EndDate { get; set; }
+        public DateTime? StartDate { get; set; }
+        public DateTime? EndDate { get; set; }
         public string Status { get; set; }
     }
 }
