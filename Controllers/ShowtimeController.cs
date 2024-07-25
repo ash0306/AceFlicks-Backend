@@ -5,10 +5,11 @@ using MovieBookingBackend.Exceptions.Showtime;
 using MovieBookingBackend.Interfaces;
 using MovieBookingBackend.Models;
 using MovieBookingBackend.Models.DTOs.Showtimes;
+using MovieBookingBackend.Services;
 
 namespace MovieBookingBackend.Controllers
 {
-    [Route("api/showtime")]
+    [Route("api/showtimes")]
     [ApiController]
     public class ShowtimeController : ControllerBase
     {
@@ -21,7 +22,7 @@ namespace MovieBookingBackend.Controllers
             _logger = logger;
         }
 
-        [HttpPost("addShowtime")]
+        [HttpPost]
         [ProducesResponseType(typeof(ShowtimeDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<ShowtimeDTO>> AddShowtime(AddShowtimeDTO addShowtimeDTO)
@@ -31,14 +32,14 @@ namespace MovieBookingBackend.Controllers
                 var result = await _showtimeService.AddShowtime(addShowtimeDTO);
                 return Ok(result);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.LogCritical(ex.Message, ex);
                 return BadRequest(new ErrorModel(400, ex.Message));
             }
         }
 
-        [HttpGet("getAllShowtimes")]
+        [HttpGet]
         [ProducesResponseType(typeof(IEnumerable<ShowtimeDTO>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status404NotFound)]
         public async Task<ActionResult<IEnumerable<ShowtimeDTO>>> GetAllShowtimes()
@@ -55,7 +56,7 @@ namespace MovieBookingBackend.Controllers
             }
         }
 
-        [HttpPut("updateShowtime")]
+        [HttpPut]
         [ProducesResponseType(typeof(ShowtimeDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status404NotFound)]
         public async Task<ActionResult<ShowtimeDTO>> UpdateShowtime(UpdateShowtimeDTO updateShowtimeDTO)
@@ -65,7 +66,41 @@ namespace MovieBookingBackend.Controllers
                 var result = await _showtimeService.UpdateShowtime(updateShowtimeDTO);
                 return Ok(result);
             }
-            catch( Exception ex)
+            catch (Exception ex)
+            {
+                _logger.LogCritical(ex.Message, ex);
+                return NotFound(new ErrorModel(404, ex.Message));
+            }
+        }
+
+        [HttpGet("movie/{movieName}")]
+        [ProducesResponseType(typeof(IEnumerable<ShowtimeDTO>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<IEnumerable<ShowtimeDTO>>> GetMovieShowtimes(string movieName)
+        {
+            try
+            {
+                var result = await _showtimeService.GetShowtimesForAMovie(movieName);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogCritical(ex.Message, ex);
+                return NotFound(new ErrorModel(404, ex.Message));
+            }
+        }
+
+        [HttpGet("theatre/{theatreName}")]
+        [ProducesResponseType(typeof(IEnumerable<IGrouping<int, ShowtimeDTO>>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<IEnumerable<IGrouping<int, ShowtimeDTO>>>> GetShowtimesByTheatre(string theatreName)
+        {
+            try
+            {
+                var result = await _showtimeService.GetShowtimesForATheatre(theatreName);
+                return Ok(result);
+            }
+            catch (Exception ex)
             {
                 _logger.LogCritical(ex.Message, ex);
                 return NotFound(new ErrorModel(404, ex.Message));

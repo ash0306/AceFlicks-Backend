@@ -10,6 +10,5 @@ namespace MovieBookingBackend.Interfaces
         public Task<MovieDTO> UpdateMovie(UpdateMovieDTO updateMovieDTO);
         public Task<IEnumerable<MovieDTO>> GetAllMovies();
         public Task<IEnumerable<MovieDTO>> GetAllRunningMovies();
-        public Task<IEnumerable<IGrouping<int, ShowtimeDTO>>> GetShowtimesForAMovie(string movieName);
     }
 }

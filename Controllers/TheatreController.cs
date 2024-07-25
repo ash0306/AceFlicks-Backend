@@ -7,7 +7,7 @@ using MovieBookingBackend.Models.DTOs.Theatres;
 
 namespace MovieBookingBackend.Controllers
 {
-    [Route("api/theatre")]
+    [Route("api/theatres")]
     [ApiController]
     public class TheatreController : ControllerBase
     {
@@ -20,7 +20,7 @@ namespace MovieBookingBackend.Controllers
             _theatreService = theatreService;
         }
 
-        [HttpPost("addTheatre")]
+        [HttpPost]
         [ProducesResponseType(typeof(TheatreDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<TheatreDTO>> AddTheatre(TheatreDTO theatreDTO)
@@ -37,7 +37,7 @@ namespace MovieBookingBackend.Controllers
             }
         }
 
-        [HttpGet("getAllTheatres")]
+        [HttpGet]
         [ProducesResponseType(typeof(IEnumerable<TheatreDTO>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status404NotFound)]
         public async Task<ActionResult<IEnumerable<TheatreDTO>>> GetAllTheatres()
@@ -47,14 +47,14 @@ namespace MovieBookingBackend.Controllers
                 var result = await _theatreService.GetAllTheatres();
                 return Ok(result);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.LogCritical(ex.Message, ex);
                 return NotFound(new ErrorModel(404, ex.Message));
             }
         }
 
-        [HttpGet("getTheatreById")]
+        [HttpGet("{id}")]
         [ProducesResponseType(typeof(TheatreDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status404NotFound)]
         public async Task<ActionResult<TheatreDTO>> GetTheatreById(int id)
@@ -71,24 +71,7 @@ namespace MovieBookingBackend.Controllers
             }
         }
 
-        [HttpGet("getShowtimeByTheatre")]
-        [ProducesResponseType(typeof(IEnumerable<IGrouping<int, ShowtimeDTO>>), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<IEnumerable<IGrouping<int, ShowtimeDTO>>>> GetShowtimesByTheatre(string theatreName)
-        {
-            try
-            {
-                var result = await _theatreService.GetShowtimesForATheatre(theatreName);
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogCritical(ex.Message, ex);
-                return NotFound(new ErrorModel(404, ex.Message));
-            }
-        }
-
-        [HttpGet("getTheatreLocations")]
+        [HttpGet("locations")]
         [ProducesResponseType(typeof(IEnumerable<string>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status404NotFound)]
         public async Task<ActionResult<IEnumerable<string>>> GetTheatreLocations(string theatreName)
@@ -105,17 +88,17 @@ namespace MovieBookingBackend.Controllers
             }
         }
 
-        [HttpPut("updateTheatre")]
+        [HttpPut]
         [ProducesResponseType(typeof(TheatreDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<TheatreDTO>> updateTheatre(UpdateTheatreDTO updateTheatreDTO)
+        public async Task<ActionResult<TheatreDTO>> UpdateTheatre(UpdateTheatreDTO updateTheatreDTO)
         {
             try
             {
                 var result = await _theatreService.UpdateTheatre(updateTheatreDTO);
                 return Ok(result);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.LogCritical(ex.Message, ex);
                 return BadRequest(new ErrorModel(400, ex.Message));

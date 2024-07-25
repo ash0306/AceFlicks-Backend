@@ -20,7 +20,7 @@ namespace MovieBookingBackend.Controllers
             _logger = logger;
         }
 
-        [HttpPost("addMovie")]
+        [HttpPost]
         [ProducesResponseType(typeof(MovieDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<MovieDTO>> AddMovie(MovieDTO movieDTO)
@@ -30,14 +30,14 @@ namespace MovieBookingBackend.Controllers
                 MovieDTO result = await _movieServices.AddMovie(movieDTO);
                 return Ok(result);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.LogCritical(ex.Message, ex);
                 return BadRequest(new ErrorModel(400, ex.Message));
             }
         }
 
-        [HttpGet("getAllMovies")]
+        [HttpGet]
         [ProducesResponseType(typeof(IEnumerable<MovieDTO>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<IEnumerable<MovieDTO>>> GetAllMovies()
@@ -47,14 +47,14 @@ namespace MovieBookingBackend.Controllers
                 var result = await _movieServices.GetAllMovies();
                 return Ok(result);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.LogCritical(ex.Message, ex);
                 return BadRequest(new ErrorModel(400, ex.Message));
             }
         }
 
-        [HttpGet("getRunningMovies")]
+        [HttpGet("running")]
         [ProducesResponseType(typeof(IEnumerable<MovieDTO>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<IEnumerable<MovieDTO>>> GetAllRunningMovies()
@@ -64,31 +64,14 @@ namespace MovieBookingBackend.Controllers
                 var result = await _movieServices.GetAllRunningMovies();
                 return Ok(result);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.LogCritical(ex.Message, ex);
                 return BadRequest(new ErrorModel(400, ex.Message));
             }
         }
 
-        [HttpGet("getMovieShowtimes")]
-        [ProducesResponseType(typeof(IEnumerable<ShowtimeDTO>), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<ShowtimeDTO>> GetMovieShwotimes(string movieName)
-        {
-            try
-            {
-                var result = await _movieServices.GetShowtimesForAMovie(movieName);
-                return Ok(result);
-            }
-            catch(Exception ex)
-            {
-                _logger.LogCritical(ex.Message, ex);
-                return NotFound(new ErrorModel(404, ex.Message));
-            }
-        }
-
-        [HttpPut("updateMovie")]
+        [HttpPut]
         [ProducesResponseType(typeof(MovieDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<MovieDTO>> UpdateMovie(UpdateMovieDTO movieDTO)

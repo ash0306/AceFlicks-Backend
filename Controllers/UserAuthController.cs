@@ -8,7 +8,7 @@ using MovieBookingBackend.Models.DTOs.Users;
 
 namespace MovieBookingBackend.Controllers
 {
-    [Route("api/userAuth")]
+    [Route("api/auth")]
     [ApiController]
     public class UserAuthController : ControllerBase
     {
@@ -21,7 +21,6 @@ namespace MovieBookingBackend.Controllers
             _logger = logger;
         }
 
-
         [HttpPost("register")]
         [ProducesResponseType(typeof(UserDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status400BadRequest)]
@@ -32,7 +31,7 @@ namespace MovieBookingBackend.Controllers
                 UserDTO userDTO = await _userAuthService.Register(userRegisterDTO);
                 return Ok(userDTO);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.LogCritical(ex.Message, ex);
                 return BadRequest(new ErrorModel(400, ex.Message));
@@ -75,7 +74,7 @@ namespace MovieBookingBackend.Controllers
         }
 
         [Authorize]
-        [HttpPut("update-password")]
+        [HttpPut("password")]
         [ProducesResponseType(typeof(UserDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<UserDTO>> UpdatePassword(UserLoginDTO userLoginDTO)

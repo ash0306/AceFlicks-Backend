@@ -99,27 +99,6 @@ namespace MovieBookingBackend.Services
             }
         }
 
-        public async Task<IEnumerable<IGrouping<int, ShowtimeDTO>>> GetShowtimesForAMovie(string movieName)
-        {
-            try
-            {
-                var movie = (await _repository.GetAll()).FirstOrDefault(m => m.Title == movieName);
-                var showtimes = movie.Showtimes.ToList();
-                IList<ShowtimeDTO> showtimeDTOs = new List<ShowtimeDTO>();
-                foreach (var item in showtimes)
-                {
-                    var showtime = _mapper.Map<ShowtimeDTO>(item);
-                    showtimeDTOs.Add(showtime);
-                }
-                var result = showtimeDTOs.GroupBy(s => s.TheatreId);
-                return result;
-            }
-            catch(Exception ex)
-            {
-                throw new NoShowtimesFoundException($"No showtimes for movie {movieName} were found");
-            }
-        }
-
         public async Task<MovieDTO> UpdateMovie(UpdateMovieDTO updateMovieDTO)
         {
             try

@@ -9,14 +9,18 @@ namespace MovieBookingBackend.Services
     public class ShowtimeService : IShowtimeService
     {
         private readonly IRepository<int, Showtime> _repository;
+        private readonly IRepository<int, Movie> _movieRepository;
+        private readonly IRepository<int, Theatre> _theatreRepository;
         private readonly IMapper _mapper;
         private readonly ILogger<ShowtimeService> _logger;
 
-        public ShowtimeService(IRepository<int, Showtime> repository, IMapper mapper, ILogger<ShowtimeService> logger)
+        public ShowtimeService(IRepository<int, Showtime> repository, IMapper mapper, ILogger<ShowtimeService> logger, IRepository<int, Movie> movieRepository, IRepository<int, Theatre> theatreRepository)
         {
             _logger = logger;
             _repository = repository;
             _mapper = mapper;
+            _movieRepository = movieRepository;
+            _theatreRepository = theatreRepository;
         }
 
         public async Task<ShowtimeDTO> AddShowtime(AddShowtimeDTO addShowtimeDTO)
@@ -96,6 +100,48 @@ namespace MovieBookingBackend.Services
             {
                 _logger.LogCritical(ex, ex.Message, "Unable to update at the moment.");
                 throw new UnableToUpdateShowtimeException($"Unable to update showtime at the moment. {ex.Message}");
+            }
+        }
+
+        public async Task<IEnumerable<IGrouping<int, ShowtimeDTO>>> GetShowtimesForAMovie(string movieName)
+        {
+            try
+            {
+                var movie = (await _movieRepository.GetAll()).FirstOrDefault(m => m.Title == movieName);
+                var showtimes = movie.Showtimes.ToList();
+                IList<ShowtimeDTO> showtimeDTOs = new List<ShowtimeDTO>();
+                foreach (var item in showtimes)
+                {
+                    var showtime = _mapper.Map<ShowtimeDTO>(item);
+                    showtimeDTOs.Add(showtime);
+                }
+                var result = showtimeDTOs.GroupBy(s => s.TheatreId);
+                return result;
+            }
+            catch (Exception ex)
+            {
+                throw new NoShowtimesFoundException($"No showtimes for movie {movieName} were found");
+            }
+        }
+
+        public async Task<IEnumerable<IGrouping<int, ShowtimeDTO>>> GetShowtimesForATheatre(string theatreName)
+        {
+            try
+            {
+                var theatre = (await _theatreRepository.GetAll()).FirstOrDefault(t => t.Name == theatreName);
+                var showtimes = theatre.Showtimes.ToList();
+                IList<ShowtimeDTO> showtimeDTOs = new List<ShowtimeDTO>();
+                foreach (var item in showtimes)
+                {
+                    var showtime = _mapper.Map<ShowtimeDTO>(item);
+                    showtimeDTOs.Add(showtime);
+                }
+                var result = showtimeDTOs.GroupBy(s => s.MovieId);
+                return result;
+            }
+            catch (Exception ex)
+            {
+                throw new NoShowtimesFoundException($"No showtimes for theatre {theatreName} were found");
             }
         }
     }
