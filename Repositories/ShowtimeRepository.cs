@@ -101,7 +101,7 @@ namespace MovieBookingBackend.Repositories
         /// <exception cref="NoShowtimesFoundException">If no showtimes are found</exception>
         public async Task<IEnumerable<Showtime>> GetAll()
         {
-            var showtimes = await _context.Showtimes.ToListAsync();
+            var showtimes = await _context.Showtimes.Include(s => s.Movie).Include(s => s.Theatre).ToListAsync();
 
             if (showtimes.Count() <= 0)
             {
@@ -118,7 +118,7 @@ namespace MovieBookingBackend.Repositories
         /// <exception cref="NoSuchShowtimeException">If showtime with the ID doesn't exist</exception>
         public async Task<Showtime> GetById(int key)
         {
-            var showtime = await _context.Showtimes.FirstOrDefaultAsync(s => s.Id == key);
+            var showtime = await _context.Showtimes.Include(s => s.Movie).Include(s => s.Theatre).FirstOrDefaultAsync(s => s.Id == key);
             if (showtime == null)
             {
                 throw new NoSuchShowtimeException($"No showtime with ID {key} was found");

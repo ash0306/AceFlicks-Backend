@@ -3,7 +3,7 @@ using MovieBookingBackend.Exceptions;
 using MovieBookingBackend.Exceptions.User;
 using MovieBookingBackend.Interfaces;
 using MovieBookingBackend.Models;
-using MovieBookingBackend.Models.DTOs.User;
+using MovieBookingBackend.Models.DTOs.Users;
 using System.Security.Cryptography;
 using System.Text;
 

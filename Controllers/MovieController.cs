@@ -2,7 +2,8 @@
 using Microsoft.AspNetCore.Mvc;
 using MovieBookingBackend.Interfaces;
 using MovieBookingBackend.Models;
-using MovieBookingBackend.Models.DTOs.Movie;
+using MovieBookingBackend.Models.DTOs.Movies;
+using MovieBookingBackend.Models.DTOs.Showtimes;
 
 namespace MovieBookingBackend.Controllers
 {
@@ -70,10 +71,27 @@ namespace MovieBookingBackend.Controllers
             }
         }
 
+        [HttpGet("getMovieShowtimes")]
+        [ProducesResponseType(typeof(IEnumerable<ShowtimeDTO>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<ShowtimeDTO>> GetMovieShwotimes(string movieName)
+        {
+            try
+            {
+                var result = await _movieServices.GetShowtimesForAMovie(movieName);
+                return Ok(result);
+            }
+            catch(Exception ex)
+            {
+                _logger.LogCritical(ex.Message, ex);
+                return NotFound(new ErrorModel(404, ex.Message));
+            }
+        }
+
         [HttpPut("updateMovie")]
         [ProducesResponseType(typeof(MovieDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<MovieDTO>> updateMovie(UpdateMovieDTO movieDTO)
+        public async Task<ActionResult<MovieDTO>> UpdateMovie(UpdateMovieDTO movieDTO)
         {
             try
             {

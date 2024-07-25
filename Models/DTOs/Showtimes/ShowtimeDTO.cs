@@ -1,6 +1,8 @@
-﻿namespace MovieBookingBackend.Models
+﻿using MovieBookingBackend.Models;
+
+namespace MovieBookingBackend.Models.DTOs.Showtimes
 {
-    public class Showtime
+    public class ShowtimeDTO
     {
         public int Id { get; set; }
         public DateTime StartTime { get; set; }
@@ -10,9 +12,5 @@
         public int TotalSeats { get; set; }
         public int AvailableSeats { get; set; }
         public float TicketPrice { get; set; }
-
-        public Movie Movie { get; set; }
-        public Theatre Theatre { get; set; }
-        public ICollection<Seat> Seats { get; set; }
     }
 }

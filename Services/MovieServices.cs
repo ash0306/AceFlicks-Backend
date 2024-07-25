@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
 using MovieBookingBackend.Exceptions.Movie;
+using MovieBookingBackend.Exceptions.Showtime;
 using MovieBookingBackend.Interfaces;
 using MovieBookingBackend.Models;
-using MovieBookingBackend.Models.DTOs.Movie;
+using MovieBookingBackend.Models.DTOs.Movies;
+using MovieBookingBackend.Models.DTOs.Showtimes;
 using MovieBookingBackend.Models.Enums;
 
 namespace MovieBookingBackend.Services
@@ -97,6 +99,27 @@ namespace MovieBookingBackend.Services
             }
         }
 
+        public async Task<IEnumerable<IGrouping<int, ShowtimeDTO>>> GetShowtimesForAMovie(string movieName)
+        {
+            try
+            {
+                var movie = (await _repository.GetAll()).FirstOrDefault(m => m.Title == movieName);
+                var showtimes = movie.Showtimes.ToList();
+                IList<ShowtimeDTO> showtimeDTOs = new List<ShowtimeDTO>();
+                foreach (var item in showtimes)
+                {
+                    var showtime = _mapper.Map<ShowtimeDTO>(item);
+                    showtimeDTOs.Add(showtime);
+                }
+                var result = showtimeDTOs.GroupBy(s => s.TheatreId);
+                return result;
+            }
+            catch(Exception ex)
+            {
+                throw new NoShowtimesFoundException($"No showtimes for movie {movieName} were found");
+            }
+        }
+
         public async Task<MovieDTO> UpdateMovie(UpdateMovieDTO updateMovieDTO)
         {
             try
@@ -109,7 +132,6 @@ namespace MovieBookingBackend.Services
 
                 _mapper.Map(updateMovieDTO, movie);
 
-                // Manually handle optional fields from DTO (if needed)
                 if (!string.IsNullOrEmpty(updateMovieDTO.Title))
                 {
                     movie.Title = updateMovieDTO.Title;

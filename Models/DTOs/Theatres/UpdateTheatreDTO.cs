@@ -1,4 +1,4 @@
-﻿namespace MovieBookingBackend.Models.DTOs.Theatre
+﻿namespace MovieBookingBackend.Models.DTOs.Theatres
 {
     public class UpdateTheatreDTO
     {

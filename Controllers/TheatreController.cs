@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using MovieBookingBackend.Interfaces;
 using MovieBookingBackend.Models;
-using MovieBookingBackend.Models.DTOs.Theatre;
+using MovieBookingBackend.Models.DTOs.Theatres;
 
 namespace MovieBookingBackend.Controllers
 {

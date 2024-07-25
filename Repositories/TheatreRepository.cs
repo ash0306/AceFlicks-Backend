@@ -101,7 +101,7 @@ namespace MovieBookingBackend.Repositories
         /// <exception cref="NoTheatresFoundException">If no theatres are found</exception>
         public async Task<IEnumerable<Theatre>> GetAll()
         {
-            var theatres = await _context.Theatres.ToListAsync();
+            var theatres = await _context.Theatres.Include(t => t.Showtimes).ToListAsync();
 
             if (theatres.Count() <= 0)
             {
@@ -118,7 +118,7 @@ namespace MovieBookingBackend.Repositories
         /// <exception cref="NoSuchTheatreException">If theatre with the ID doesn't exist</exception>
         public async Task<Theatre> GetById(int key)
         {
-            var theatre = await _context.Theatres.FirstOrDefaultAsync(t => t.Id == key);
+            var theatre = await _context.Theatres.Include(t => t.Showtimes).FirstOrDefaultAsync(t => t.Id == key);
             if (theatre == null)
             {
                 throw new NoSuchTheatreException($"No theatre with ID {key} was found");

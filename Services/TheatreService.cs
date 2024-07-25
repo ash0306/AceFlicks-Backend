@@ -3,7 +3,7 @@ using MovieBookingBackend.Exceptions.Movie;
 using MovieBookingBackend.Exceptions.Theatre;
 using MovieBookingBackend.Interfaces;
 using MovieBookingBackend.Models;
-using MovieBookingBackend.Models.DTOs.Theatre;
+using MovieBookingBackend.Models.DTOs.Theatres;
 
 namespace MovieBookingBackend.Services
 {

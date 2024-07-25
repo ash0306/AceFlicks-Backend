@@ -1,4 +1,4 @@
-﻿using MovieBookingBackend.Models.DTOs.User;
+﻿using MovieBookingBackend.Models.DTOs.Users;
 
 namespace MovieBookingBackend.Interfaces
 {

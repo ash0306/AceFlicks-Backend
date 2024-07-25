@@ -1,4 +1,4 @@
-﻿namespace MovieBookingBackend.Models.DTOs.User
+﻿namespace MovieBookingBackend.Models.DTOs.Users
 {
     public class UserDTO
     {
