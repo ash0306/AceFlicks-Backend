@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
 using MovieBookingBackend.Exceptions.Movie;
+using MovieBookingBackend.Exceptions.Showtime;
 using MovieBookingBackend.Exceptions.Theatre;
 using MovieBookingBackend.Interfaces;
 using MovieBookingBackend.Models;
+using MovieBookingBackend.Models.DTOs.Showtimes;
 using MovieBookingBackend.Models.DTOs.Theatres;
 
 namespace MovieBookingBackend.Services
@@ -74,6 +76,49 @@ namespace MovieBookingBackend.Services
                 return returnTheatres;
             }
             catch(Exception ex)
+            {
+                _logger.LogCritical("Unable to fetch theatres" + ex.Message);
+                throw new NoTheatresFoundException("Unable to fetch theatres" + ex.Message);
+            }
+        }
+
+        public async Task<IEnumerable<IGrouping<int, ShowtimeDTO>>> GetShowtimesForATheatre(string theatreName)
+        {
+            try
+            {
+                var theatre = (await _repository.GetAll()).FirstOrDefault(t => t.Name == theatreName);
+                var showtimes = theatre.Showtimes.ToList();
+                IList<ShowtimeDTO> showtimeDTOs = new List<ShowtimeDTO>();
+                foreach (var item in showtimes)
+                {
+                    var showtime = _mapper.Map<ShowtimeDTO>(item);
+                    showtimeDTOs.Add(showtime);
+                }
+                var result = showtimeDTOs.GroupBy(s => s.MovieId);
+                return result;
+            }
+            catch (Exception ex)
+            {
+                throw new NoShowtimesFoundException($"No showtimes for theatre {theatreName} were found");
+            }
+        }
+
+        public async Task<TheatreDTO> GetTheatreById(int id)
+        {
+            try
+            {
+                Theatre theatre = await _repository.GetById(id);
+                if (theatre == null)
+                {
+                    _logger.LogCritical($"No theatre with ID {id} found");
+                    throw new NoSuchTheatreException($"No theatre with ID {id} found");
+                }
+
+                TheatreDTO theatreDTO = _mapper.Map<TheatreDTO>(theatre);
+                
+                return theatreDTO;
+            }
+            catch (Exception ex)
             {
                 _logger.LogCritical("Unable to fetch theatres" + ex.Message);
                 throw new NoTheatresFoundException("Unable to fetch theatres" + ex.Message);

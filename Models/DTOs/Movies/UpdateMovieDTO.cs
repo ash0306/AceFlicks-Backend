@@ -7,7 +7,7 @@ public class UpdateMovieDTO
     [Required]
     public string Title { get; set; }
     public int Duration { get; set; } //in minutes
-    public DateTime? StartDate { get; set; }
-    public DateTime? EndDate { get; set; }
+    public DateTime? StartDate { get; set; } = DateTime.MinValue;
+    public DateTime? EndDate { get; set; } = DateTime.MinValue;
     public string Status { get; set; }
 }

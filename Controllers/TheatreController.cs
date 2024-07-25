@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using MovieBookingBackend.Interfaces;
 using MovieBookingBackend.Models;
+using MovieBookingBackend.Models.DTOs.Showtimes;
 using MovieBookingBackend.Models.DTOs.Theatres;
 
 namespace MovieBookingBackend.Controllers
@@ -47,6 +48,40 @@ namespace MovieBookingBackend.Controllers
                 return Ok(result);
             }
             catch(Exception ex)
+            {
+                _logger.LogCritical(ex.Message, ex);
+                return NotFound(new ErrorModel(404, ex.Message));
+            }
+        }
+
+        [HttpGet("getTheatreById")]
+        [ProducesResponseType(typeof(TheatreDTO), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<TheatreDTO>> GetTheatreById(int id)
+        {
+            try
+            {
+                var result = await _theatreService.GetTheatreById(id);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogCritical(ex.Message, ex);
+                return NotFound(new ErrorModel(404, ex.Message));
+            }
+        }
+
+        [HttpGet("getShowtimeByTheatre")]
+        [ProducesResponseType(typeof(IEnumerable<IGrouping<int, ShowtimeDTO>>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<IEnumerable<IGrouping<int, ShowtimeDTO>>>> GetShowtimesByTheatre(string theatreName)
+        {
+            try
+            {
+                var result = await _theatreService.GetShowtimesForATheatre(theatreName);
+                return Ok(result);
+            }
+            catch (Exception ex)
             {
                 _logger.LogCritical(ex.Message, ex);
                 return NotFound(new ErrorModel(404, ex.Message));
