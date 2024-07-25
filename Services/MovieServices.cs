@@ -120,11 +120,11 @@ namespace MovieBookingBackend.Services
                 }
                 if (updateMovieDTO.StartDate != DateTime.MinValue)
                 {
-                    movie.StartDate = updateMovieDTO.StartDate;
+                    movie.StartDate = (DateTime)updateMovieDTO.StartDate;
                 }
                 if (updateMovieDTO.EndDate != DateTime.MinValue)
                 {
-                    movie.EndDate = updateMovieDTO.EndDate;
+                    movie.EndDate = (DateTime)updateMovieDTO.EndDate;
                 }
                 if (!string.IsNullOrEmpty(updateMovieDTO.Status))
                 {

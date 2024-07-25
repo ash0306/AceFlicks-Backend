@@ -140,7 +140,7 @@ namespace MovieBookingBackend.Repositories
             {
                 throw new NoSuchTheatreException($"No theatre with ID {item.Id} was found");
             }
-            _context.Update(theatre);
+            _context.Update(item);
 
             int noOfRowsAffected = await _context.SaveChangesAsync();
             if (noOfRowsAffected <= 0)
@@ -148,7 +148,7 @@ namespace MovieBookingBackend.Repositories
                 throw new UnableToUpdateTheatreException($"Unable to update theatre with ID {item.Id}");
             }
 
-            return theatre;
+            return item;
         }
     }
 }

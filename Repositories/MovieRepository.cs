@@ -104,7 +104,7 @@ namespace MovieBookingBackend.Repositories
         {
             var movies = await _context.Movies.ToListAsync();
 
-            if (movies.Count() < 0)
+            if (movies.Count() <= 0)
             {
                 throw new NoMoviesFoundException("No movies found");
             }
