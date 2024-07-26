@@ -1,10 +1,13 @@
-﻿namespace MovieBookingBackend.Models
+﻿using MovieBookingBackend.Models.Enums;
+
+namespace MovieBookingBackend.Models
 {
     public class Showtime
     {
         public int Id { get; set; }
         public DateTime StartTime { get; set; }
         public DateTime EndTime { get; set; }
+        public ShowtimeStatus Status { get; set; }
         public int MovieId { get; set; }
         public int TheatreId { get; set; }
         public int TotalSeats { get; set; }

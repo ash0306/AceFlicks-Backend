@@ -6,6 +6,7 @@ using MovieBookingBackend.Interfaces;
 using MovieBookingBackend.Models;
 using MovieBookingBackend.Models.DTOs.Seats;
 using MovieBookingBackend.Models.DTOs.Showtimes;
+using MovieBookingBackend.Models.Enums;
 
 namespace MovieBookingBackend.Services
 {
@@ -53,6 +54,12 @@ namespace MovieBookingBackend.Services
                 }
 
                 var newShowtime = _mapper.Map<Showtime>(addShowtimeDTO);
+
+                if (addShowtimeDTO.StartTime < DateTime.Now)
+                {
+                    newShowtime.Status = ShowtimeStatus.Inactive;
+                }
+                newShowtime.Status = ShowtimeStatus.Active;
                 newShowtime.AvailableSeats = newShowtime.TotalSeats;
                 
                 var result = await _repository.Add(newShowtime);
@@ -73,11 +80,12 @@ namespace MovieBookingBackend.Services
             try
             {
                 var results = await _repository.GetAll();
-                var upcomigShowtimes = results.Where(s => s.StartTime > DateTime.Now);
+                var upcomigShowtimes = results.Where(s => s.Status == ShowtimeStatus.Active);
                 IList<ShowtimeDTO> showtimes = new List<ShowtimeDTO>();
                 foreach (var item in upcomigShowtimes)
                 {
                     var showtimeDTO = _mapper.Map<ShowtimeDTO>(item);
+                    showtimeDTO.Status = item.Status.ToString();
                     showtimes.Add(showtimeDTO);
                 }
                 return showtimes;
@@ -124,7 +132,7 @@ namespace MovieBookingBackend.Services
             {
                 var movie = (await _movieRepository.GetAll()).FirstOrDefault(m => m.Title == movieName);
                 var showtimes = movie.Showtimes.ToList();
-                var upcomigShowtimes = showtimes.Where(s => s.StartTime > DateTime.Now);
+                var upcomigShowtimes = showtimes.Where(s => s.Status == ShowtimeStatus.Active);
                 IList<ShowtimeDTO> showtimeDTOs = new List<ShowtimeDTO>();
                 foreach (var item in upcomigShowtimes)
                 {
@@ -146,7 +154,7 @@ namespace MovieBookingBackend.Services
             {
                 var theatre = (await _theatreRepository.GetAll()).FirstOrDefault(t => t.Name == theatreName);
                 var showtimes = theatre.Showtimes.ToList();
-                var upcomigShowtimes = showtimes.Where(s => s.StartTime > DateTime.Now);
+                var upcomigShowtimes = showtimes.Where(s => s.Status == ShowtimeStatus.Active);
                 IList<ShowtimeDTO> showtimeDTOs = new List<ShowtimeDTO>();
                 foreach (var item in upcomigShowtimes)
                 {
@@ -183,8 +191,8 @@ namespace MovieBookingBackend.Services
             }
             catch (Exception ex)
             {
-                _logger.LogCritical("No seats found for the showtime");
-                throw new NoSeatsFoundException("No seats for the given shwotime");
+                _logger.LogCritical($"No seats found for the showtime. {ex}");
+                throw new NoSeatsFoundException($"No seats for the given showtime. {ex.Message}");
             }
         }
     }
