@@ -10,6 +10,7 @@ namespace MovieBookingBackend.Models.DTOs.Bookings
         public DateTime BookingTime { get; set; }
         public float TotalPrice { get; set; }
         public string Status { get; set; }
+        public string? OfferMessage { get; set; }
         public ICollection<string> ShowtimeDetails { get; set; }
         public ICollection<string> Seats { get; set; }
     }

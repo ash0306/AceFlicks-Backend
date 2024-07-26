@@ -69,9 +69,16 @@ namespace MovieBookingBackend.Services
                         throw new UnableToUpdateSeatException("Could not update seat while making the booking.");
                     }
                 }
+
+                int bookingsThisWeek = await GetBookingsCountThisWeek(addBookingDTO.UserId);
                 BookingDTO bookingDTO = _mapper.Map<BookingDTO>(newBooking);
                 bookingDTO.ShowtimeDetails = GetShowtimeDetails(newBooking.Showtime);
                 bookingDTO.Seats = GetSeatNumbers(newBooking.Seats);
+                if (bookingsThisWeek >= 3)
+                {
+                    string offerCode = GenerateOfferCode();
+                    bookingDTO.OfferMessage = $"Congratulations! You have earned a free popcorn. Use code {offerCode} at the theatre to avail this offer.";
+                }
 
                 return bookingDTO;
             }
@@ -80,6 +87,29 @@ namespace MovieBookingBackend.Services
                 _logger.LogCritical($"Unable to add booking. {ex}");
                 throw new UnableToAddBookingException($"Unable to add booking at the moment. {ex.Message}");
             }
+        }
+
+        private string GenerateOfferCode()
+        {
+            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+            Random random = new Random();
+            char[] code = new char[6];
+
+            for (int i = 0; i < 6; i++)
+            {
+                code[i] = chars[random.Next(chars.Length)];
+            }
+
+            return new string(code);
+        }
+
+        private async Task<int> GetBookingsCountThisWeek(int userId)
+        {
+            var bookings = await _repository.GetAll();
+            var currentWeekStart = DateTime.Now.StartOfWeek(DayOfWeek.Monday);
+            var currentWeekEnd = currentWeekStart.AddDays(7);
+            int bookingsThisWeek = bookings.Count(b => b.UserId == userId && b.BookingTime >= currentWeekStart && b.BookingTime < currentWeekEnd);
+            return bookingsThisWeek;
         }
 
         private async Task<Booking> AddBookingDTOtoBooking(AddBookingDTO addBookingDTO)
@@ -265,4 +295,14 @@ namespace MovieBookingBackend.Services
             return seatNumbers;
         }
     }
+
+    public static class DateTimeExtensions
+    {
+        public static DateTime StartOfWeek(this DateTime dt, DayOfWeek startOfWeek)
+        {
+            int diff = (7 + (dt.DayOfWeek - startOfWeek)) % 7;
+            return dt.AddDays(-1 * diff).Date;
+        }
+    }
+
 }
