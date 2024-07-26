@@ -14,7 +14,11 @@ namespace MovieBookingBackend.Services
         private readonly IMapper _mapper;
         private readonly ILogger<ShowtimeService> _logger;
 
-        public ShowtimeService(IRepository<int, Showtime> repository, IMapper mapper, ILogger<ShowtimeService> logger, IRepository<int, Movie> movieRepository, IRepository<int, Theatre> theatreRepository)
+        public ShowtimeService(IRepository<int, Showtime> repository, 
+            IMapper mapper, 
+            ILogger<ShowtimeService> logger, 
+            IRepository<int, Movie> movieRepository, 
+            IRepository<int, Theatre> theatreRepository)
         {
             _logger = logger;
             _repository = repository;

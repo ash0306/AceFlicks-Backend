@@ -49,12 +49,14 @@ namespace MovieBookingBackend.Contexts
             modelBuilder.Entity<Theatre>()
                 .HasMany(t => t.Showtimes)
                 .WithOne(s => s.Theatre)
-                .HasForeignKey(s => s.TheatreId);
+                .HasForeignKey(s => s.TheatreId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<Showtime>()
                 .HasMany(sh => sh.Seats)
                 .WithOne(s => s.Showtime)
-                .HasForeignKey(s => s.ShowetimeId);
+                .HasForeignKey(s => s.ShowetimeId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<Booking>()
                 .HasMany(b => b.Seats)
