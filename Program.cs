@@ -86,6 +86,7 @@ namespace MovieBookingBackend
             builder.Services.AddScoped<ITheatreService, TheatreService>();
             builder.Services.AddScoped<IShowtimeService, ShowtimeService>();
             builder.Services.AddScoped<IUserService, UserService>();
+            builder.Services.AddScoped<ISeatService, SeatService>();
 
             builder.Services.AddScoped<ITokenService, TokenService>();
             #endregion

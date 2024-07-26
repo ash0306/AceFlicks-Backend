@@ -31,7 +31,7 @@ namespace MovieBookingBackend.Services
                 for (int i = 0; i < noOfRows; i++)
                 {
                     char row = (char)('A' + i);
-                    for (int j = 0; j < seatsPerRow; j++)
+                    for (int j = 1; j <= seatsPerRow; j++)
                     {
                         Seat seat = new Seat()
                         {
@@ -41,7 +41,7 @@ namespace MovieBookingBackend.Services
                             IsAvailable = true,
                             ShowetimeId = showtime.Id
                         };
-                        _repository.Add(seat);
+                        await _repository.Add(seat);
                     }
                 }
             }

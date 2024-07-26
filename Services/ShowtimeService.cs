@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
+using MovieBookingBackend.Exceptions.Seat;
 using MovieBookingBackend.Exceptions.Showtime;
 using MovieBookingBackend.Interfaces;
 using MovieBookingBackend.Models;
+using MovieBookingBackend.Models.DTOs.Seats;
 using MovieBookingBackend.Models.DTOs.Showtimes;
 
 namespace MovieBookingBackend.Services
@@ -13,18 +15,21 @@ namespace MovieBookingBackend.Services
         private readonly IRepository<int, Theatre> _theatreRepository;
         private readonly IMapper _mapper;
         private readonly ILogger<ShowtimeService> _logger;
+        private readonly ISeatService _seatService;
 
         public ShowtimeService(IRepository<int, Showtime> repository, 
             IMapper mapper, 
             ILogger<ShowtimeService> logger, 
             IRepository<int, Movie> movieRepository, 
-            IRepository<int, Theatre> theatreRepository)
+            IRepository<int, Theatre> theatreRepository,
+            ISeatService seatService)
         {
             _logger = logger;
             _repository = repository;
             _mapper = mapper;
             _movieRepository = movieRepository;
             _theatreRepository = theatreRepository;
+            _seatService = seatService;
         }
 
         public async Task<ShowtimeDTO> AddShowtime(AddShowtimeDTO addShowtimeDTO)
@@ -50,6 +55,7 @@ namespace MovieBookingBackend.Services
                 newShowtime.AvailableSeats = newShowtime.TotalSeats;
                 
                 var result = await _repository.Add(newShowtime);
+                await _seatService.AddSeats(newShowtime);
 
                 var showtimeDTO = _mapper.Map<ShowtimeDTO>(result);
                 return showtimeDTO;
@@ -97,6 +103,9 @@ namespace MovieBookingBackend.Services
                 _mapper.Map(updateShowtimeDTO, showtime);
 
                 var newShowtime = await _repository.Update(showtime);
+                _seatService.DeleteSeats(newShowtime.Id);
+                _seatService.AddSeats(newShowtime);
+
                 ShowtimeDTO returnDTO = _mapper.Map<ShowtimeDTO>(newShowtime);
                 return returnDTO;
             }
@@ -146,6 +155,32 @@ namespace MovieBookingBackend.Services
             catch (Exception ex)
             {
                 throw new NoShowtimesFoundException($"No showtimes for theatre {theatreName} were found");
+            }
+        }
+
+        public async Task<IEnumerable<SeatDTO>> GetSeatsByShowtime(int showtimeId)
+        {
+            try
+            {
+                var showtime = await _repository.GetById(showtimeId);
+                if(showtime == null)
+                {
+                    throw new NoSuchShowtimeException($"No showtime with ID {showtimeId} found");
+                }
+                var seats = showtime.Seats.ToList();
+                IList<SeatDTO> seatDTOs = new List<SeatDTO>();
+
+                foreach (var seat in seats)
+                {
+                    var seatDTO = _mapper.Map<SeatDTO>(seat);
+                    seatDTOs.Add(seatDTO);
+                }
+                return seatDTOs;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogCritical("No seats found for the showtime");
+                throw new NoSeatsFoundException("No seats for the given shwotime");
             }
         }
     }

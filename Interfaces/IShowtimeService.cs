@@ -1,4 +1,5 @@
-﻿using MovieBookingBackend.Models.DTOs.Showtimes;
+﻿using MovieBookingBackend.Models.DTOs.Seats;
+using MovieBookingBackend.Models.DTOs.Showtimes;
 
 namespace MovieBookingBackend.Interfaces
 {
@@ -9,5 +10,6 @@ namespace MovieBookingBackend.Interfaces
         public Task<IEnumerable<ShowtimeDTO>> GetAllShowtime();
         public Task<IEnumerable<IGrouping<int, ShowtimeDTO>>> GetShowtimesForAMovie(string movieName);
         public Task<IEnumerable<IGrouping<int, ShowtimeDTO>>> GetShowtimesForATheatre(string theatreName);
+        public Task<IEnumerable<SeatDTO>> GetSeatsByShowtime(int showtimeId);
     }
 }

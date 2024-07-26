@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using MovieBookingBackend.Exceptions.Showtime;
 using MovieBookingBackend.Interfaces;
 using MovieBookingBackend.Models;
+using MovieBookingBackend.Models.DTOs.Seats;
 using MovieBookingBackend.Models.DTOs.Showtimes;
 using MovieBookingBackend.Services;
 
@@ -101,6 +102,23 @@ namespace MovieBookingBackend.Controllers
                 return Ok(result);
             }
             catch (Exception ex)
+            {
+                _logger.LogCritical(ex.Message, ex);
+                return NotFound(new ErrorModel(404, ex.Message));
+            }
+        }
+
+        [HttpGet("seats/{showtimeId}")]
+        [ProducesResponseType(typeof(IEnumerable<SeatDTO>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<IEnumerable<SeatDTO>>> GetSeatsByShowtimeId(int showtimeId)
+        {
+            try
+            {
+                var result = await _showtimeService.GetSeatsByShowtime(showtimeId);
+                return Ok(result);
+            }
+            catch(Exception ex)
             {
                 _logger.LogCritical(ex.Message, ex);
                 return NotFound(new ErrorModel(404, ex.Message));
