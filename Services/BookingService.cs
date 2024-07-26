@@ -5,6 +5,7 @@ using MovieBookingBackend.Interfaces;
 using MovieBookingBackend.Models;
 using MovieBookingBackend.Models.DTOs.Bookings;
 using MovieBookingBackend.Models.DTOs.Seats;
+using MovieBookingBackend.Models.DTOs.Showtimes;
 using MovieBookingBackend.Models.Enums;
 
 namespace MovieBookingBackend.Services
@@ -12,15 +13,17 @@ namespace MovieBookingBackend.Services
     public class BookingService : IBookingService
     {
         private readonly IRepository<int, Booking> _repository;
+        private readonly IRepository<int, User> _userRepository;
         private readonly ILogger<BookingService> _logger;
         private readonly IMapper _mapper;
         private readonly ISeatService _seatService;
 
-        public BookingService(IRepository<int, Booking> repository, ILogger<BookingService> logger, IMapper mappper, ISeatService seatService)
+        public BookingService(IRepository<int, Booking> repository, IRepository<int, User> userRepository, ILogger<BookingService> logger, IMapper mapper, ISeatService seatService)
         {
             _repository = repository;
+            _userRepository = userRepository;
             _logger = logger;
-            _mapper = mappper;
+            _mapper = mapper;
             _seatService = seatService;
         }
 
@@ -28,7 +31,8 @@ namespace MovieBookingBackend.Services
         {
             try
             {
-                var booking = _mapper.Map<Booking>(addBookingDTO);
+                await _userRepository.GetById(addBookingDTO.UserId);
+                Booking booking = AddBookingDTOtoBooking(addBookingDTO);
                 
                 foreach (var seatId in addBookingDTO.Seats)
                 {
@@ -58,8 +62,10 @@ namespace MovieBookingBackend.Services
                         throw new UnableToUpdateSeatException("Could not update seat while making the booking.");
                     }
                 }
-
                 BookingDTO bookingDTO = _mapper.Map<BookingDTO>(newBooking);
+                bookingDTO.ShowtimeDetails = GetShowtimeDetails(newBooking.Showtime);
+                bookingDTO.Seats = GetSeatNumbers(newBooking.Seats);
+
                 return bookingDTO;
             }
             catch(Exception ex)
@@ -67,6 +73,17 @@ namespace MovieBookingBackend.Services
                 _logger.LogCritical($"Unable to add booking. {ex}");
                 throw new UnableToAddBookingException($"Unable to add booking at the moment. {ex.Message}");
             }
+        }
+
+        private Booking AddBookingDTOtoBooking(AddBookingDTO addBookingDTO)
+        {
+            Booking booking = new Booking()
+            {
+                UserId = addBookingDTO.UserId,
+                ShowtimeId = addBookingDTO.ShowtimeId,
+                TotalPrice = addBookingDTO.TotalPrice
+            };
+            return booking;
         }
 
         public async Task<IEnumerable<BookingDTO>> GetAllBookings()
@@ -82,7 +99,10 @@ namespace MovieBookingBackend.Services
                 IList<BookingDTO> bookingDTOs = new List<BookingDTO>();
                 foreach(var booking in bookings)
                 {
-                    bookingDTOs.Add(_mapper.Map<BookingDTO>(booking));
+                    BookingDTO bookingDTO = _mapper.Map<BookingDTO>(booking);
+                    bookingDTO.ShowtimeDetails = GetShowtimeDetails(booking.Showtime);
+                    bookingDTO.Seats = GetSeatNumbers(booking.Seats);
+                    bookingDTOs.Add(bookingDTO);
                 }
 
                 return bookingDTOs;
@@ -107,7 +127,10 @@ namespace MovieBookingBackend.Services
                 IList<BookingDTO> bookingDTOs = new List<BookingDTO>();
                 foreach (var booking in bookings)
                 {
-                    bookingDTOs.Add(_mapper.Map<BookingDTO>(booking));
+                    BookingDTO bookingDTO = _mapper.Map<BookingDTO>(booking);
+                    bookingDTO.ShowtimeDetails = GetShowtimeDetails(booking.Showtime);
+                    bookingDTO.Seats = GetSeatNumbers(booking.Seats);
+                    bookingDTOs.Add(bookingDTO);
                 }
 
                 return bookingDTOs;
@@ -129,6 +152,8 @@ namespace MovieBookingBackend.Services
                     throw new NoSuchBookingException($"No booking found with ID {id}");
                 }
                 BookingDTO bookingDTO = _mapper.Map<BookingDTO>(booking);
+                bookingDTO.ShowtimeDetails = GetShowtimeDetails(booking.Showtime);
+                bookingDTO.Seats = GetSeatNumbers(booking.Seats);
 
                 return bookingDTO;
             }
@@ -145,47 +170,82 @@ namespace MovieBookingBackend.Services
             {
                 var booking = await _repository.GetById(bookingStatusDTO.Id);
                 var seats = booking.Seats.ToList();
-
-                if(bookingStatusDTO.Status == "Cancelled" || bookingStatusDTO.Status == "Failed")
-                {
-                    foreach(var seat in seats)
-                    {
-                        UpdateSeatDTO updateSeatDTO = new UpdateSeatDTO()
-                        {
-                            Id = seat.Id,
-                            SeatStatus = SeatStatus.Available.ToString(),
-                            IsAvailable = true,
-                            BookingId = null
-                        };
-                        await _seatService.UpdateSeat(updateSeatDTO);
+                if(bookingStatusDTO.Status == "Cancelled"){
+                    if (booking.Showtime.StartTime < DateTime.Now.AddHours(-6)){
+                        CancelBookingSeats(seats);
                     }
+                    throw new UnableToDeleteBookingException("Unable to cancel booking as the booking is scheduled in less than 6 hours");
                 }
-                else
-                {
-                    foreach (var seat in seats)
-                    {
-                        UpdateSeatDTO updateSeatDTO = new UpdateSeatDTO()
-                        {
-                            Id = seat.Id,
-                            SeatStatus = bookingStatusDTO.Status,
-                            IsAvailable = true,
-                            BookingId = null
-                        };
-                        await _seatService.UpdateSeat(updateSeatDTO);
-                    }
+                else if (bookingStatusDTO.Status == "Failed"){
+                    CancelBookingSeats(seats);
+                }
+                else{
+                    ResetSeatsStatus(seats, bookingStatusDTO);
                 }
 
                 booking.Status = (BookingStatus)Enum.Parse(typeof(BookingStatus), bookingStatusDTO.Status);
                 var result = _repository.Update(booking);
 
-                BookingDTO returnDTO = _mapper.Map<BookingDTO>(result);
-                return returnDTO;
+                BookingDTO bookingDTO = _mapper.Map<BookingDTO>(booking);
+                bookingDTO.ShowtimeDetails = GetShowtimeDetails(booking.Showtime);
+                bookingDTO.Seats = GetSeatNumbers(booking.Seats);
+
+                return bookingDTO;
             }
             catch(Exception ex)
             {
                 _logger.LogCritical($"Could not update booking with ID {bookingStatusDTO.Id}. {ex}");
                 throw new UnableToUpdateBookingException($"Could not update booking with ID {bookingStatusDTO.Id}. {ex.Message}");
             }
+        }
+
+        private async void CancelBookingSeats(List<Seat> seats)
+        {
+            foreach (var seat in seats)
+            {
+                UpdateSeatDTO updateSeatDTO = new UpdateSeatDTO()
+                {
+                    Id = seat.Id,
+                    SeatStatus = SeatStatus.Available.ToString(),
+                    IsAvailable = true,
+                    BookingId = null
+                };
+                await _seatService.UpdateSeat(updateSeatDTO);
+            }
+        }
+        private async void ResetSeatsStatus(List<Seat> seats, BookingStatusDTO bookingStatusDTO)
+        {
+            foreach (var seat in seats)
+            {
+                UpdateSeatDTO updateSeatDTO = new UpdateSeatDTO()
+                {
+                    Id = seat.Id,
+                    SeatStatus = bookingStatusDTO.Status,
+                    IsAvailable = true,
+                    BookingId = null
+                };
+                await _seatService.UpdateSeat(updateSeatDTO);
+            }
+        }
+        private ICollection<string> GetShowtimeDetails(Showtime showtime)
+        {
+            IList<string> showtimeDetails = new List<string>()
+            {
+                $"Show Start Time: {showtime.StartTime}",
+                $"Movie: {showtime.Movie?.Title}",
+                $"Theatre: {showtime.Theatre?.Name}"
+            };
+
+            return showtimeDetails;
+        }
+        private ICollection<string> GetSeatNumbers(ICollection<Seat> seats)
+        {
+            IList<string> seatNumbers = new List<string>();
+            foreach(var seat in seats)
+            {
+                seatNumbers.Add($"{seat.Row}{seat.SeatNumber}");
+            }
+            return seatNumbers;
         }
     }
 }

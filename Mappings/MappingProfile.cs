@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using MovieBookingBackend.Models;
+using MovieBookingBackend.Models.DTOs.Bookings;
 using MovieBookingBackend.Models.DTOs.Movies;
 using MovieBookingBackend.Models.DTOs.Seats;
 using MovieBookingBackend.Models.DTOs.Showtimes;
@@ -39,6 +40,12 @@ namespace MovieBookingBackend.Mappings
             CreateMap<Seat, AddSeatDTO>().ReverseMap();
             CreateMap<Seat, UpdateSeatDTO>().ReverseMap();
             CreateMap<Seat, UpdateSeatStatusDTO>().ReverseMap();
+            #endregion
+
+            #region Booking Mappings
+            CreateMap<Booking, BookingDTO>().ReverseMap();
+            CreateMap<Booking, AddBookingDTO>().ReverseMap();
+            CreateMap<Booking, BookingStatusDTO>().ReverseMap();
             #endregion
         }
     }

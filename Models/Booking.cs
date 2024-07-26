@@ -9,7 +9,7 @@ namespace MovieBookingBackend.Models
         public int ShowtimeId { get; set; }
         public DateTime BookingTime { get; set; } = DateTime.Now;
         public float TotalPrice { get; set; }
-        public BookingStatus Status { get; set; }
+        public BookingStatus Status { get; set; } = BookingStatus.Reserved;
 
         public User User { get; set; }
         public Showtime Showtime { get; set; }

@@ -101,7 +101,7 @@ namespace MovieBookingBackend.Repositories
         /// <exception cref="NoBookingsFoundException">If no bookings are found</exception>
         public async Task<IEnumerable<Booking>> GetAll()
         {
-            var bookings = await _context.Bookings.Include(b => b.Seats).ToListAsync();
+            var bookings = await _context.Bookings.Include(b => b.Seats).Include(b => b.Showtime.Movie).Include(b => b.Showtime.Theatre).ToListAsync();
 
             if (bookings.Count() <= 0)
             {
@@ -120,6 +120,7 @@ namespace MovieBookingBackend.Repositories
         {
             var booking = await _context.Bookings
                 .Include(b => b.Seats)
+                .Include(b => b.Showtime)
                 .FirstOrDefaultAsync(b => b.Id == key);
             if (booking == null)
             {

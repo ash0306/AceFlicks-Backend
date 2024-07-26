@@ -2,32 +2,31 @@
 using Microsoft.AspNetCore.Mvc;
 using MovieBookingBackend.Interfaces;
 using MovieBookingBackend.Models;
-using MovieBookingBackend.Models.DTOs.Movies;
-using MovieBookingBackend.Models.DTOs.Showtimes;
+using MovieBookingBackend.Models.DTOs.Bookings;
 
 namespace MovieBookingBackend.Controllers
 {
-    [Route("api/movies")]
+    [Route("api/bookings")]
     [ApiController]
-    public class MovieController : ControllerBase
+    public class BookingController : ControllerBase
     {
-        private readonly IMovieServices _movieServices;
-        private readonly ILogger<MovieController> _logger;
+        private readonly IBookingService _bookingService;
+        private readonly ILogger<BookingController> _logger;
 
-        public MovieController(IMovieServices movieServices, ILogger<MovieController> logger)
+        public BookingController(IBookingService bookingService, ILogger<BookingController> logger)
         {
-            _movieServices = movieServices;
+            _bookingService = bookingService;
             _logger = logger;
         }
 
         [HttpPost]
-        [ProducesResponseType(typeof(MovieDTO), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(BookingDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<MovieDTO>> AddMovie(MovieDTO movieDTO)
+        public async Task<ActionResult<BookingDTO>> AddBooking(AddBookingDTO addBookingDTO)
         {
             try
             {
-                MovieDTO result = await _movieServices.AddMovie(movieDTO);
+                var result = await _bookingService.AddBooking(addBookingDTO);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -38,13 +37,13 @@ namespace MovieBookingBackend.Controllers
         }
 
         [HttpGet]
-        [ProducesResponseType(typeof(IEnumerable<MovieDTO>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(BookingDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<IEnumerable<MovieDTO>>> GetAllMovies()
+        public async Task<ActionResult<IEnumerable<BookingDTO>>> GetAllBookings()
         {
             try
             {
-                var result = await _movieServices.GetAllMovies();
+                var result = await _bookingService.GetAllBookings();
                 return Ok(result);
             }
             catch (Exception ex)
@@ -54,14 +53,14 @@ namespace MovieBookingBackend.Controllers
             }
         }
 
-        [HttpGet("running")]
-        [ProducesResponseType(typeof(IEnumerable<MovieDTO>), StatusCodes.Status200OK)]
+        [HttpGet("user/{id}")]
+        [ProducesResponseType(typeof(BookingDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<IEnumerable<MovieDTO>>> GetAllRunningMovies()
+        public async Task<ActionResult<IEnumerable<BookingDTO>>> GetBookingsByUserId(int id)
         {
             try
             {
-                var result = await _movieServices.GetAllRunningMovies();
+                var result = await _bookingService.GetAllBookingsByUserId(id);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -71,14 +70,14 @@ namespace MovieBookingBackend.Controllers
             }
         }
 
-        [HttpGet("byLanguages")]
-        [ProducesResponseType(typeof(IEnumerable<IGrouping<string, MovieDTO>>), StatusCodes.Status200OK)]
+        [HttpGet("{id}")]
+        [ProducesResponseType(typeof(BookingDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<IEnumerable<IGrouping<string, MovieDTO>>>> GetAllRunningMoviesByLanguages()
+        public async Task<ActionResult<IEnumerable<BookingDTO>>> GetAllBookingsById(int id)
         {
             try
             {
-                var result = await _movieServices.GetRunningMoviesByLanguages();
+                var result = await _bookingService.GetBookingById(id);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -88,14 +87,14 @@ namespace MovieBookingBackend.Controllers
             }
         }
 
-        [HttpPut]
-        [ProducesResponseType(typeof(MovieDTO), StatusCodes.Status200OK)]
+        [HttpPut("status")]
+        [ProducesResponseType(typeof(BookingDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<MovieDTO>> UpdateMovie(UpdateMovieDTO movieDTO)
+        public async Task<ActionResult<BookingDTO>> UpdateBookingStatus(BookingStatusDTO bookingStatusDTO)
         {
             try
             {
-                var result = await _movieServices.UpdateMovie(movieDTO);
+                var result = await _bookingService.UpdateBookingStatus(bookingStatusDTO);
                 return Ok(result);
             }
             catch (Exception ex)
