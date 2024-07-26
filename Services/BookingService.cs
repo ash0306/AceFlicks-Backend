@@ -32,6 +32,10 @@ namespace MovieBookingBackend.Services
             try
             {
                 await _userRepository.GetById(addBookingDTO.UserId);
+                if(addBookingDTO.Seats.Count() > 5 )
+                {
+                    throw new MaxSeatLimitException("Cannot place order as the maximum number of tickets has to be less than 5");
+                }
                 Booking booking = AddBookingDTOtoBooking(addBookingDTO);
                 
                 foreach (var seatId in addBookingDTO.Seats)
