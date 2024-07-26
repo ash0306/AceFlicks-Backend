@@ -68,6 +68,52 @@ namespace MovieBookingBackend.Services
             }
         }
 
+        public async Task<SeatDTO> GetSeatById(int seatId)
+        {
+            try
+            {
+                var seat = await _repository.GetById(seatId);
+                if(seat == null)
+                {
+                    throw new NoSuchSeatException($"No seat with ID {seatId} was found");
+                }
+                SeatDTO seatDTO = _mapper.Map<SeatDTO>(seat);
+                return seatDTO;
+            }
+            catch(Exception ex)
+            {
+                _logger.LogCritical($"No seat found. {ex}");
+                throw new NoSuchSeatException($"No seat found. {ex.Message}");
+            }
+        }
+
+        public async Task<bool> UpdateSeat(UpdateSeatDTO updateSeatDTO)
+        {
+            try
+            {
+                var seat = await _repository.GetById(updateSeatDTO.Id);
+                if(seat == null)
+                {
+                    throw new NoSuchSeatException($"No seat with ID {updateSeatDTO.Id} was found");
+                }
+                seat.SeatStatus = (SeatStatus)Enum.Parse(typeof(SeatStatus), updateSeatDTO.SeatStatus);
+                seat.IsAvailable = updateSeatDTO.IsAvailable;
+                seat.BookingId = updateSeatDTO.BookingId;
+
+                var newSeat = await _repository.Update(seat);
+                if(newSeat == null)
+                {
+                    return false;
+                }
+                return true;                
+            }
+            catch (Exception ex)
+            {
+                _logger.LogCritical($"Unable to update seat. {ex}");
+                throw new UnableToUpdateSeatException($"Unable to update seat at the moment. {ex.Message}");
+            }
+        }
+
         public async Task<SeatDTO> UpdateSeatStatus(UpdateSeatStatusDTO updateSeatStatusDTO)
         {
             var seat = await _repository.GetById(updateSeatStatusDTO.Id);
