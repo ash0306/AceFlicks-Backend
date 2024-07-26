@@ -13,6 +13,8 @@ public class MovieDTO
 
     [Required]
     public string Genre { get; set; }
+    [Required] 
+    public string Language { get; set; }
 
     [Required]
     public int Duration { get; set; } //in minutes

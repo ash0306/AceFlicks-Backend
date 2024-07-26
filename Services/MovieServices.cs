@@ -87,8 +87,36 @@ namespace MovieBookingBackend.Services
                 IList<MovieDTO> returnMovies = new List<MovieDTO>();
                 foreach (var item in movies)
                 {
-                    returnMovies.Append(_mapper.Map<MovieDTO>(item));
+                    var movieDto = _mapper.Map<MovieDTO>(item);
+                    returnMovies.Add(movieDto);
                 }
+
+                return returnMovies;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogCritical("Unable to fetch movies" + ex.Message);
+                throw new NoMoviesFoundException("Unable to fetch movies" + ex.Message);
+            }
+        }
+
+        public async Task<IEnumerable<IGrouping<string, MovieDTO>>> GetRunningMoviesByLanguages()
+        {
+            try
+            {
+                IEnumerable<Movie> movies = (await _repository.GetAll()).Where(m => m.Status == MovieStatus.Running);
+                if (movies.Count() <= 0)
+                {
+                    _logger.LogCritical("No running movies found");
+                    throw new NoMoviesFoundException("No running movies found");
+                }
+
+                IList<MovieDTO> movieDTOs = new List<MovieDTO>();
+                foreach (var item in movies)
+                {
+                    movieDTOs.Add(_mapper.Map<MovieDTO>(item));
+                }
+                IEnumerable<IGrouping<string, MovieDTO>> returnMovies = movieDTOs.GroupBy(m => m.Language);
 
                 return returnMovies;
             }

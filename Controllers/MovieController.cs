@@ -56,7 +56,7 @@ namespace MovieBookingBackend.Controllers
 
         [HttpGet("running")]
         [ProducesResponseType(typeof(IEnumerable<MovieDTO>), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status404NotFound)]
         public async Task<ActionResult<IEnumerable<MovieDTO>>> GetAllRunningMovies()
         {
             try
@@ -67,7 +67,24 @@ namespace MovieBookingBackend.Controllers
             catch (Exception ex)
             {
                 _logger.LogCritical(ex.Message, ex);
-                return BadRequest(new ErrorModel(400, ex.Message));
+                return NotFound(new ErrorModel(404, ex.Message));
+            }
+        }
+
+        [HttpGet("byLanguages")]
+        [ProducesResponseType(typeof(IEnumerable<IGrouping<string, MovieDTO>>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<IEnumerable<IGrouping<string, MovieDTO>>>> GetAllRunningMoviesByLanguages()
+        {
+            try
+            {
+                var result = await _movieServices.GetRunningMoviesByLanguages();
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogCritical(ex.Message, ex);
+                return NotFound(new ErrorModel(404, ex.Message));
             }
         }
 
