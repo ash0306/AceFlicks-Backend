@@ -14,14 +14,16 @@ namespace MovieBookingBackend.Services
     {
         private readonly IRepository<int, Booking> _repository;
         private readonly IRepository<int, User> _userRepository;
+        private readonly IRepository<int, Showtime> _showtimeRepository;
         private readonly ILogger<BookingService> _logger;
         private readonly IMapper _mapper;
         private readonly ISeatService _seatService;
 
-        public BookingService(IRepository<int, Booking> repository, IRepository<int, User> userRepository, ILogger<BookingService> logger, IMapper mapper, ISeatService seatService)
+        public BookingService(IRepository<int, Booking> repository, IRepository<int, User> userRepository, IRepository<int, Showtime> showtimeRepository, ILogger<BookingService> logger, IMapper mapper, ISeatService seatService)
         {
             _repository = repository;
             _userRepository = userRepository;
+            _showtimeRepository = showtimeRepository;
             _logger = logger;
             _mapper = mapper;
             _seatService = seatService;
@@ -36,7 +38,8 @@ namespace MovieBookingBackend.Services
                 {
                     throw new MaxSeatLimitException("Cannot place order as the maximum number of tickets has to be less than 5");
                 }
-                Booking booking = AddBookingDTOtoBooking(addBookingDTO);
+
+                Booking booking = await AddBookingDTOtoBooking(addBookingDTO);
                 
                 foreach (var seatId in addBookingDTO.Seats)
                 {
@@ -79,15 +82,25 @@ namespace MovieBookingBackend.Services
             }
         }
 
-        private Booking AddBookingDTOtoBooking(AddBookingDTO addBookingDTO)
+        private async Task<Booking> AddBookingDTOtoBooking(AddBookingDTO addBookingDTO)
         {
+            float totalPrice = await CalculateTotalPrice(addBookingDTO);
             Booking booking = new Booking()
             {
                 UserId = addBookingDTO.UserId,
                 ShowtimeId = addBookingDTO.ShowtimeId,
-                TotalPrice = addBookingDTO.TotalPrice
+                TotalPrice = totalPrice
             };
             return booking;
+        }
+
+        private async Task<float> CalculateTotalPrice(AddBookingDTO addBookingDTO)
+        {
+            int noOfSeats = addBookingDTO.Seats.Count();
+            Showtime showtime = await _showtimeRepository.GetById(addBookingDTO.ShowtimeId);
+
+            float totalPrice = showtime.TicketPrice * noOfSeats;
+            return totalPrice;
         }
 
         public async Task<IEnumerable<BookingDTO>> GetAllBookings()
