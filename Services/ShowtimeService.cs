@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Http;
 using MovieBookingBackend.Exceptions.Seat;
 using MovieBookingBackend.Exceptions.Showtime;
 using MovieBookingBackend.Interfaces;
@@ -72,8 +73,9 @@ namespace MovieBookingBackend.Services
             try
             {
                 var results = await _repository.GetAll();
+                var upcomigShowtimes = results.Where(s => s.StartTime > DateTime.Now);
                 IList<ShowtimeDTO> showtimes = new List<ShowtimeDTO>();
-                foreach (var item in results)
+                foreach (var item in upcomigShowtimes)
                 {
                     var showtimeDTO = _mapper.Map<ShowtimeDTO>(item);
                     showtimes.Add(showtimeDTO);
@@ -122,8 +124,9 @@ namespace MovieBookingBackend.Services
             {
                 var movie = (await _movieRepository.GetAll()).FirstOrDefault(m => m.Title == movieName);
                 var showtimes = movie.Showtimes.ToList();
+                var upcomigShowtimes = showtimes.Where(s => s.StartTime > DateTime.Now);
                 IList<ShowtimeDTO> showtimeDTOs = new List<ShowtimeDTO>();
-                foreach (var item in showtimes)
+                foreach (var item in upcomigShowtimes)
                 {
                     var showtime = _mapper.Map<ShowtimeDTO>(item);
                     showtimeDTOs.Add(showtime);
@@ -143,8 +146,9 @@ namespace MovieBookingBackend.Services
             {
                 var theatre = (await _theatreRepository.GetAll()).FirstOrDefault(t => t.Name == theatreName);
                 var showtimes = theatre.Showtimes.ToList();
+                var upcomigShowtimes = showtimes.Where(s => s.StartTime > DateTime.Now);
                 IList<ShowtimeDTO> showtimeDTOs = new List<ShowtimeDTO>();
-                foreach (var item in showtimes)
+                foreach (var item in upcomigShowtimes)
                 {
                     var showtime = _mapper.Map<ShowtimeDTO>(item);
                     showtimeDTOs.Add(showtime);
