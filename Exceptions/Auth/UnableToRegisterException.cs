@@ -1,6 +1,6 @@
 ﻿using System.Runtime.Serialization;
 
-namespace MovieBookingBackend.Exceptions
+namespace MovieBookingBackend.Exceptions.Auth
 {
     [Serializable]
     internal class UnableToRegisterException : Exception

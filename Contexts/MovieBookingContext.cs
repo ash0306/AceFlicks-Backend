@@ -16,6 +16,7 @@ namespace MovieBookingBackend.Contexts
         public DbSet<Showtime> Showtimes { get; set; }
         public DbSet<Seat> Seats { get; set; }
         public DbSet<Booking> Bookings { get; set; }
+        public DbSet<EmailVerification> EmailVerifications { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -32,7 +33,8 @@ namespace MovieBookingBackend.Contexts
                     Phone = "9333555908",
                     PasswordHashKey = hmac.Key,
                     PasswordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes("andrew123")),
-                    Role = UserRole.Admin
+                    Role = UserRole.Admin,
+                    Status = UserStatus.Active,
                 }
                 );
 

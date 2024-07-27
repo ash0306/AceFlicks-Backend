@@ -42,7 +42,7 @@ namespace MovieBookingBackend
             });
             #endregion
 
-
+            #region Swagger
             builder.Services.AddSwaggerGen(option =>
             {
                 option.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
@@ -69,7 +69,9 @@ namespace MovieBookingBackend
                     }
                 });
             });
+            #endregion
 
+            #region Authentication
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
                 {
@@ -93,6 +95,7 @@ namespace MovieBookingBackend
                         }
                     };
                 });
+            #endregion
 
             #region Quartz
             builder.Services.AddSingleton<IJobFactory, SingletonJobFactory>();
@@ -130,6 +133,7 @@ namespace MovieBookingBackend
             builder.Services.AddScoped<IRepository<int, Showtime>, ShowtimeRepository>();
             builder.Services.AddScoped<IRepository<int, Seat>, SeatRepository>();
             builder.Services.AddScoped<IRepository<int, Booking>, BookingRepository>();
+            builder.Services.AddScoped<IEmailVerificationRepository, EmailVerificationRepository>();
             #endregion
 
             #region Services
@@ -140,6 +144,8 @@ namespace MovieBookingBackend
             builder.Services.AddScoped<IUserService, UserService>();
             builder.Services.AddScoped<ISeatService, SeatService>();
             builder.Services.AddScoped<IBookingService, BookingService>();
+            builder.Services.AddScoped<IEmailSender, EmailSenderService>();
+            builder.Services.AddScoped<IEmailVerificationService, EmailVerificationService>();
 
             builder.Services.AddScoped<ITokenService, TokenService>();
             #endregion

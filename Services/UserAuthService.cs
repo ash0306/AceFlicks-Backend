@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using MovieBookingBackend.Exceptions;
+using MovieBookingBackend.Exceptions.Auth;
 using MovieBookingBackend.Exceptions.User;
 using MovieBookingBackend.Interfaces;
 using MovieBookingBackend.Models;
@@ -34,6 +35,11 @@ namespace MovieBookingBackend.Services
                 {
                     _logger.LogCritical("User does not exist");
                     throw new NoSuchUserException($"No user with Email {userLoginDTO.Email} found");
+                }
+                if(user.Status == UserStatus.Inactive)
+                {
+                    _logger.LogCritical("User is not verified");
+                    throw new UserNotActiveException($"User is not verified. Please verify your email to continue");
                 }
 
                 HMACSHA512 hMACSHA512 = new HMACSHA512(user.PasswordHashKey);
