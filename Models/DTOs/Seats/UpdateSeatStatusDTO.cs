@@ -1,4 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using MovieBookingBackend.Models.Enums;
+using MovieBookingBackend.Validations;
+using System.ComponentModel.DataAnnotations;
 
 namespace MovieBookingBackend.Models.DTOs.Seats
 {
@@ -8,6 +10,7 @@ namespace MovieBookingBackend.Models.DTOs.Seats
         public int Id { get; set; }
 
         [Required]
+        [EnumValidation(typeof(SeatStatus))]
         public string SeatStatus { get; set; }
 
         public int? BookingId { get; set; }

@@ -1,9 +1,14 @@
-﻿namespace MovieBookingBackend.Models.DTOs.Showtimes
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace MovieBookingBackend.Models.DTOs.Showtimes
 {
     public class UpdateShowtimeDTO
     {
+        [Required]
         public int Id { get; set; }
+        [Required]
         public int MovieId { get; set; }
+        [Required]
         public int TheatreId { get; set; }
         public DateTime StartTime { get; set; }
         public DateTime EndTime { get; set; }
