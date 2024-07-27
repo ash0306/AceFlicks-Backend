@@ -4,6 +4,7 @@ using MovieBookingBackend.Exceptions.User;
 using MovieBookingBackend.Interfaces;
 using MovieBookingBackend.Models;
 using MovieBookingBackend.Models.DTOs.Users;
+using MovieBookingBackend.Models.Enums;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -87,6 +88,7 @@ namespace MovieBookingBackend.Services
 
                 user.PasswordHashKey = hMACSHA.Key;
                 user.PasswordHash = hMACSHA.ComputeHash(Encoding.UTF8.GetBytes(userRegisterDTO.Password));
+                user.Role = UserRole.User;
                 var newUser = await _repository.Add(user);
 
                 UserDTO userDTO = _mapper.Map<UserDTO>(newUser);
@@ -113,7 +115,7 @@ namespace MovieBookingBackend.Services
                     throw new UserAlreadyExistsException($"User with Email {userRegisterDTO.Email} already exists");
                 }
                 user = _mapper.Map<User>(userRegisterDTO);
-                user.Role = Models.Enums.UserRole.Admin;
+                user.Role = UserRole.Admin;
                 HMACSHA512 hMACSHA = new HMACSHA512();
 
                 user.PasswordHashKey = hMACSHA.Key;

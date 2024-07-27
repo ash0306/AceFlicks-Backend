@@ -38,7 +38,7 @@ namespace MovieBookingBackend.Controllers
             }
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize]
         [HttpPost("register-admin")]
         [ProducesResponseType(typeof(UserDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status400BadRequest)]
@@ -64,6 +64,14 @@ namespace MovieBookingBackend.Controllers
             try
             {
                 UserLoginReturnDTO loginReturnDTO = await _userAuthService.Login(userLoginDTO);
+                Response.Cookies.Append("aceTickets-token", loginReturnDTO.Token, new CookieOptions
+                {
+                    Secure = true,
+                    HttpOnly = true,
+                    SameSite = SameSiteMode.None,
+                    MaxAge = TimeSpan.FromHours(8),
+                    Expires = DateTimeOffset.UtcNow.AddHours(8)
+                });
                 return Ok(loginReturnDTO);
             }
             catch (Exception ex)
