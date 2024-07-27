@@ -3,11 +3,16 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using MovieBookingBackend.Contexts;
+using MovieBookingBackend.CRON;
+using MovieBookingBackend.CRON.Jobs;
 using MovieBookingBackend.Interfaces;
 using MovieBookingBackend.Mappings;
 using MovieBookingBackend.Models;
 using MovieBookingBackend.Repositories;
 using MovieBookingBackend.Services;
+using Quartz;
+using Quartz.Impl;
+using Quartz.Spi;
 using System.Text;
 
 namespace MovieBookingBackend
@@ -63,7 +68,22 @@ namespace MovieBookingBackend
 
                 });
 
+            #region Quartz
+            builder.Services.AddSingleton<IJobFactory, SingletonJobFactory>();
+            builder.Services.AddSingleton<ISchedulerFactory, StdSchedulerFactory>();
+
+            builder.Services.AddSingleton<MovieStatusUpdateJob>();
+            builder.Services.AddSingleton(new JobSchedule(
+                jobType: typeof(MovieStatusUpdateJob),
+                cronExpression: "0 1 * * * ?"
+                ));
+
+            builder.Services.AddHostedService<QuartzHostedService>();
+            #endregion
+
+            #region Logging
             builder.Services.AddLogging(l => l.AddLog4Net());
+            #endregion
 
             #region Contexts
             builder.Services.AddDbContext<MovieBookingContext>(
