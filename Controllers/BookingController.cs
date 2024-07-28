@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Cors;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MovieBookingBackend.Interfaces;
 using MovieBookingBackend.Models;
@@ -8,6 +9,7 @@ namespace MovieBookingBackend.Controllers
 {
     [Route("api/bookings")]
     [ApiController]
+    [EnableCors("AllowSpecificOrigin")]
     public class BookingController : ControllerBase
     {
         private readonly IBookingService _bookingService;

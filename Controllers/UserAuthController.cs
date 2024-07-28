@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MovieBookingBackend.Exceptions.EmailVerification;
@@ -13,6 +14,7 @@ namespace MovieBookingBackend.Controllers
 {
     [Route("api/auth")]
     [ApiController]
+    [EnableCors("AllowSpecificOrigin")]
     public class UserAuthController : ControllerBase
     {
         private readonly IUserAuthService _userAuthService;

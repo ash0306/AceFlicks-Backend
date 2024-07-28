@@ -13,6 +13,12 @@ namespace MovieBookingBackend.Services
         private readonly ILogger<UserService> _logger;
         private readonly IMapper _mapper;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="UserService"/> class.
+        /// </summary>
+        /// <param name="repository">The repository instance used for user data access.</param>
+        /// <param name="logger">The logger instance for logging operations.</param>
+        /// <param name="mapper">The AutoMapper instance for object mapping.</param>
         public UserService(IRepository<int, User> repository, ILogger<UserService> logger, IMapper mapper)
         {
             _logger = logger;
@@ -20,6 +26,11 @@ namespace MovieBookingBackend.Services
             _mapper = mapper;
         }
 
+        /// <summary>
+        /// Retrieves all users with the Admin role.
+        /// </summary>
+        /// <returns>A list of <see cref="UserDTO"/> objects representing admin users.</returns>
+        /// <exception cref="NoUsersFoundException">Thrown if no admin users are found.</exception>
         public async Task<IEnumerable<UserDTO>> GetAllAdminUserDetails()
         {
             try
@@ -45,6 +56,11 @@ namespace MovieBookingBackend.Services
             }
         }
 
+        /// <summary>
+        /// Retrieves all users regardless of role.
+        /// </summary>
+        /// <returns>A list of <see cref="UserDTO"/> objects representing all users.</returns>
+        /// <exception cref="NoUsersFoundException">Thrown if no users are found.</exception>
         public async Task<IEnumerable<UserDTO>> GetAllUsers()
         {
             try
@@ -70,6 +86,11 @@ namespace MovieBookingBackend.Services
             }
         }
 
+        /// <summary>
+        /// Retrieves all users with the User role.
+        /// </summary>
+        /// <returns>A list of <see cref="UserDTO"/> objects representing regular users.</returns>
+        /// <exception cref="NoUsersFoundException">Thrown if no regular users are found.</exception>
         public async Task<IEnumerable<UserDTO>> GetAllUserDetails()
         {
             try
@@ -95,6 +116,12 @@ namespace MovieBookingBackend.Services
             }
         }
 
+        /// <summary>
+        /// Retrieves a user by their email address.
+        /// </summary>
+        /// <param name="email">The email address of the user to retrieve.</param>
+        /// <returns>A <see cref="UserDTO"/> object representing the user.</returns>
+        /// <exception cref="NoSuchUserException">Thrown if no user with the given email is found.</exception>
         public async Task<UserDTO> GetUserByEmail(string email)
         {
             try
@@ -116,6 +143,12 @@ namespace MovieBookingBackend.Services
             }
         }
 
+        /// <summary>
+        /// Retrieves a user by their ID.
+        /// </summary>
+        /// <param name="id">The ID of the user to retrieve.</param>
+        /// <returns>A <see cref="UserDTO"/> object representing the user.</returns>
+        /// <exception cref="NoSuchUserException">Thrown if no user with the given ID is found.</exception>
         public async Task<UserDTO> GetUserById(int id)
         {
             try
@@ -137,6 +170,12 @@ namespace MovieBookingBackend.Services
             }
         }
 
+        /// <summary>
+        /// Updates user information based on the provided details.
+        /// </summary>
+        /// <param name="updateUserDTO">The details to update for the user.</param>
+        /// <returns>A <see cref="UserDTO"/> object representing the updated user.</returns>
+        /// <exception cref="NoSuchUserException">Thrown if no user with the given ID is found.</exception>
         public async Task<UserDTO> UpdateUser(UpdateUserDTO updateUserDTO)
         {
             try

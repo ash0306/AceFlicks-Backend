@@ -19,10 +19,19 @@ namespace MovieBookingBackend.Services
         private readonly ILogger<ShowtimeService> _logger;
         private readonly ISeatService _seatService;
 
-        public ShowtimeService(IRepository<int, Showtime> repository, 
-            IMapper mapper, 
-            ILogger<ShowtimeService> logger, 
-            IRepository<int, Movie> movieRepository, 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ShowtimeService"/> class.
+        /// </summary>
+        /// <param name="repository">The repository for showtimes.</param>
+        /// <param name="mapper">The mapper for DTOs.</param>
+        /// <param name="logger">The logger for the service.</param>
+        /// <param name="movieRepository">The repository for movies.</param>
+        /// <param name="theatreRepository">The repository for theatres.</param>
+        /// <param name="seatService">The seat service for managing seats.</param>
+        public ShowtimeService(IRepository<int, Showtime> repository,
+            IMapper mapper,
+            ILogger<ShowtimeService> logger,
+            IRepository<int, Movie> movieRepository,
             IRepository<int, Theatre> theatreRepository,
             ISeatService seatService)
         {
@@ -34,6 +43,13 @@ namespace MovieBookingBackend.Services
             _seatService = seatService;
         }
 
+        /// <summary>
+        /// Adds a new showtime.
+        /// </summary>
+        /// <param name="addShowtimeDTO">The DTO containing showtime details.</param>
+        /// <returns>The added showtime DTO.</returns>
+        /// <exception cref="ShowtimeAlreadyExistsException">Thrown when the showtime already exists.</exception>
+        /// <exception cref="UnableToAddShowtimeException">Thrown when there is an error adding the showtime.</exception>
         public async Task<ShowtimeDTO> AddShowtime(AddShowtimeDTO addShowtimeDTO)
         {
             try
@@ -59,9 +75,12 @@ namespace MovieBookingBackend.Services
                 {
                     newShowtime.Status = ShowtimeStatus.Inactive;
                 }
-                newShowtime.Status = ShowtimeStatus.Active;
+                else
+                {
+                    newShowtime.Status = ShowtimeStatus.Active;
+                }
                 newShowtime.AvailableSeats = newShowtime.TotalSeats;
-                
+
                 var result = await _repository.Add(newShowtime);
                 await _seatService.AddSeats(newShowtime);
 
@@ -75,6 +94,11 @@ namespace MovieBookingBackend.Services
             }
         }
 
+        /// <summary>
+        /// Gets all active showtimes.
+        /// </summary>
+        /// <returns>A list of active showtime DTOs.</returns>
+        /// <exception cref="NoShowtimesFoundException">Thrown when no showtimes are found.</exception>
         public async Task<IEnumerable<ShowtimeDTO>> GetAllShowtime()
         {
             try
@@ -90,31 +114,38 @@ namespace MovieBookingBackend.Services
                 }
                 return showtimes;
             }
-            catch (Exception ex )
+            catch (Exception ex)
             {
                 _logger.LogCritical($"No showtimes were found. {ex.Message}");
                 throw new NoShowtimesFoundException($"No showtimes were found. {ex.Message}");
             }
         }
 
+        /// <summary>
+        /// Updates a showtime.
+        /// </summary>
+        /// <param name="updateShowtimeDTO">The DTO containing showtime update details.</param>
+        /// <returns>The updated showtime DTO.</returns>
+        /// <exception cref="NoSuchShowtimeException">Thrown when the showtime is not found.</exception>
+        /// <exception cref="UnableToUpdateShowtimeException">Thrown when there is an error updating the showtime.</exception>
         public async Task<ShowtimeDTO> UpdateShowtime(UpdateShowtimeDTO updateShowtimeDTO)
         {
             try
             {
                 var showtime = await _repository.GetById(updateShowtimeDTO.Id);
-                if(showtime == null)
+                if (showtime == null)
                 {
                     throw new NoSuchShowtimeException($"No showtime with the given details was found");
                 }
-                if(showtime.AvailableSeats < showtime.TotalSeats)
+                if (showtime.AvailableSeats < showtime.TotalSeats)
                 {
                     throw new UnableToUpdateShowtimeException("Unable to update showtime because tickets have already been booked for this showtime");
                 }
                 _mapper.Map(updateShowtimeDTO, showtime);
 
                 var newShowtime = await _repository.Update(showtime);
-                _seatService.DeleteSeats(newShowtime.Id);
-                _seatService.AddSeats(newShowtime);
+                await _seatService.DeleteSeats(newShowtime.Id);
+                await _seatService.AddSeats(newShowtime);
 
                 ShowtimeDTO returnDTO = _mapper.Map<ShowtimeDTO>(newShowtime);
                 return returnDTO;
@@ -126,11 +157,21 @@ namespace MovieBookingBackend.Services
             }
         }
 
+        /// <summary>
+        /// Gets showtimes for a specific movie.
+        /// </summary>
+        /// <param name="movieName">The name of the movie.</param>
+        /// <returns>A list of showtime DTOs grouped by theatre ID.</returns>
+        /// <exception cref="NoShowtimesFoundException">Thrown when no showtimes are found for the movie.</exception>
         public async Task<IEnumerable<IGrouping<int, ShowtimeDTO>>> GetShowtimesForAMovie(string movieName)
         {
             try
             {
                 var movie = (await _movieRepository.GetAll()).FirstOrDefault(m => m.Title == movieName);
+                if (movie == null)
+                {
+                    throw new NoShowtimesFoundException($"No showtimes for movie {movieName} were found");
+                }
                 var showtimes = movie.Showtimes.ToList();
                 var upcomigShowtimes = showtimes.Where(s => s.Status == ShowtimeStatus.Active);
                 IList<ShowtimeDTO> showtimeDTOs = new List<ShowtimeDTO>();
@@ -148,11 +189,21 @@ namespace MovieBookingBackend.Services
             }
         }
 
+        /// <summary>
+        /// Gets showtimes for a specific theatre.
+        /// </summary>
+        /// <param name="theatreName">The name of the theatre.</param>
+        /// <returns>A list of showtime DTOs grouped by movie ID.</returns>
+        /// <exception cref="NoShowtimesFoundException">Thrown when no showtimes are found for the theatre.</exception>
         public async Task<IEnumerable<IGrouping<int, ShowtimeDTO>>> GetShowtimesForATheatre(string theatreName)
         {
             try
             {
                 var theatre = (await _theatreRepository.GetAll()).FirstOrDefault(t => t.Name == theatreName);
+                if (theatre == null)
+                {
+                    throw new NoShowtimesFoundException($"No showtimes for theatre {theatreName} were found");
+                }
                 var showtimes = theatre.Showtimes.ToList();
                 var upcomigShowtimes = showtimes.Where(s => s.Status == ShowtimeStatus.Active);
                 IList<ShowtimeDTO> showtimeDTOs = new List<ShowtimeDTO>();
@@ -170,12 +221,19 @@ namespace MovieBookingBackend.Services
             }
         }
 
+        /// <summary>
+        /// Gets seats for a specific showtime.
+        /// </summary>
+        /// <param name="showtimeId">The showtime ID.</param>
+        /// <returns>A list of seat DTOs.</returns>
+        /// <exception cref="NoSuchShowtimeException">Thrown when the showtime is not found.</exception>
+        /// <exception cref="NoSeatsFoundException">Thrown when no seats are found for the showtime.</exception>
         public async Task<IEnumerable<SeatDTO>> GetSeatsByShowtime(int showtimeId)
         {
             try
             {
                 var showtime = await _repository.GetById(showtimeId);
-                if(showtime == null)
+                if (showtime == null)
                 {
                     throw new NoSuchShowtimeException($"No showtime with ID {showtimeId} found");
                 }

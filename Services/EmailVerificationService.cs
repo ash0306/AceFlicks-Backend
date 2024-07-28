@@ -16,6 +16,15 @@ namespace MovieBookingBackend.Services
         private readonly IRepository<int, User> _userRepository;
         private readonly ILogger<EmailVerificationService> _logger;
 
+        /// <summary>
+        /// Parameterized Constructor
+        /// </summary>
+        /// <param name="emailVerificationRepository">Repository for Email Verification</param>
+        /// <param name="mapper">Mapper for DTOs</param>
+        /// <param name="configuration">Configuration for settings</param>
+        /// <param name="emailService">Service for sending emails</param>
+        /// <param name="userRepository">Repository for User</param>
+        /// <param name="logger">Logger for EmailVerificationService</param>
         public EmailVerificationService(IEmailVerificationRepository emailVerificationRepository, IMapper mapper, IConfiguration configuration, IEmailSender emailService, IRepository<int, User> userRepository, ILogger<EmailVerificationService> logger)
         {
             _emailVerificationRepository = emailVerificationRepository;
@@ -26,6 +35,11 @@ namespace MovieBookingBackend.Services
             _logger = logger;
         }
 
+        /// <summary>
+        /// Creates a new email verification entry and sends the verification code via email
+        /// </summary>
+        /// <param name="userId">User ID for which the verification is created</param>
+        /// <exception cref="Exception">Thrown when there is an error creating the verification entry</exception>
         public async Task CreateEmailVerification(int userId)
         {
             try
@@ -101,6 +115,15 @@ namespace MovieBookingBackend.Services
             }
         }
 
+        /// <summary>
+        /// Verifies the email using the provided verification code
+        /// </summary>
+        /// <param name="userId">User ID to be verified</param>
+        /// <param name="verificationCode">Verification code to verify the email</param>
+        /// <returns>True if the verification is successful</returns>
+        /// <exception cref="NoSuchEmailVerificationException">Thrown if the email verification is not found</exception>
+        /// <exception cref="InvalidEmailVerificationCodeException">Thrown if the verification code is invalid</exception>
+        /// <exception cref="VerificationExpiredException">Thrown if the verification code has expired</exception>
         public async Task<bool> VerifyEmail(int userId, string verificationCode)
         {
             var user = await _userRepository.GetById(userId);
@@ -130,6 +153,12 @@ namespace MovieBookingBackend.Services
             return true;
         }
 
+        /// <summary>
+        /// Sends an email indicating that the email verification was successful
+        /// </summary>
+        /// <param name="userId">User ID to send the email to</param>
+        /// <returns>Task representing the asynchronous operation</returns>
+        /// <exception cref="NoSuchUserException">Thrown if the user does not exist</exception>
         private async Task SendVerificationSuccessEmailAsync(int userId)
         {
             var user = await _userRepository.GetById(userId);
@@ -185,6 +214,10 @@ namespace MovieBookingBackend.Services
             await _emailService.SendEmailAsync(user.Email, subject, body);
         }
 
+        /// <summary>
+        /// Generates a 6-digit verification code
+        /// </summary>
+        /// <returns>A 6-digit verification code as string</returns>
         private string GenerateVerificationCode()
         {
             return new Random().Next(100000, 999999).ToString();

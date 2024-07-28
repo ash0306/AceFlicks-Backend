@@ -19,6 +19,15 @@ namespace MovieBookingBackend.Services
         private readonly IMapper _mapper;
         private readonly ISeatService _seatService;
 
+        /// <summary>
+        /// Parameterized Constructor
+        /// </summary>
+        /// <param name="repository">Repository for Booking</param>
+        /// <param name="userRepository">Repository for User</param>
+        /// <param name="showtimeRepository">Repository for Showtime</param>
+        /// <param name="logger">Logger for BookingService</param>
+        /// <param name="mapper">Mapper for DTOs</param>
+        /// <param name="seatService">Service for Seat operations</param>
         public BookingService(IRepository<int, Booking> repository, IRepository<int, User> userRepository, IRepository<int, Showtime> showtimeRepository, ILogger<BookingService> logger, IMapper mapper, ISeatService seatService)
         {
             _repository = repository;
@@ -29,22 +38,28 @@ namespace MovieBookingBackend.Services
             _seatService = seatService;
         }
 
+        /// <summary>
+        /// Adds a new booking
+        /// </summary>
+        /// <param name="addBookingDTO">DTO containing booking details to be added</param>
+        /// <returns>The newly added booking</returns>
+        /// <exception cref="UnableToAddBookingException">Thrown if the booking cannot be added</exception>
         public async Task<BookingDTO> AddBooking(AddBookingDTO addBookingDTO)
         {
             try
             {
                 await _userRepository.GetById(addBookingDTO.UserId);
-                if(addBookingDTO.Seats.Count() > 5 )
+                if (addBookingDTO.Seats.Count() > 5)
                 {
                     throw new MaxSeatLimitException("Cannot place order as the maximum number of tickets has to be less than 5");
                 }
 
                 Booking booking = await AddBookingDTOtoBooking(addBookingDTO);
-                
+
                 foreach (var seatId in addBookingDTO.Seats)
                 {
                     SeatDTO seat = await _seatService.GetSeatById(seatId);
-                    if(seat.SeatStatus == "Reserved")
+                    if (seat.SeatStatus == "Reserved")
                     {
                         throw new SeatHasBeenReservedException($"Seat with ID {seat.Id} has been reserved/blocked by another user. Please reselect your seats and try again.");
                     }
@@ -82,13 +97,17 @@ namespace MovieBookingBackend.Services
 
                 return bookingDTO;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.LogCritical($"Unable to add booking. {ex}");
                 throw new UnableToAddBookingException($"Unable to add booking at the moment. {ex.Message}");
             }
         }
 
+        /// <summary>
+        /// Generates a random offer code
+        /// </summary>
+        /// <returns>A random 6-character offer code</returns>
         private string GenerateOfferCode()
         {
             const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -103,6 +122,11 @@ namespace MovieBookingBackend.Services
             return new string(code);
         }
 
+        /// <summary>
+        /// Gets the count of bookings made by a user in the current week
+        /// </summary>
+        /// <param name="userId">ID of the user</param>
+        /// <returns>Number of bookings made by the user in the current week</returns>
         private async Task<int> GetBookingsCountThisWeek(int userId)
         {
             var bookings = await _repository.GetAll();
@@ -112,6 +136,11 @@ namespace MovieBookingBackend.Services
             return bookingsThisWeek;
         }
 
+        /// <summary>
+        /// Converts AddBookingDTO to Booking
+        /// </summary>
+        /// <param name="addBookingDTO">DTO containing booking details</param>
+        /// <returns>A Booking object</returns>
         private async Task<Booking> AddBookingDTOtoBooking(AddBookingDTO addBookingDTO)
         {
             float totalPrice = await CalculateTotalPrice(addBookingDTO);
@@ -124,6 +153,11 @@ namespace MovieBookingBackend.Services
             return booking;
         }
 
+        /// <summary>
+        /// Calculates the total price of the booking
+        /// </summary>
+        /// <param name="addBookingDTO">DTO containing booking details</param>
+        /// <returns>Total price of the booking</returns>
         private async Task<float> CalculateTotalPrice(AddBookingDTO addBookingDTO)
         {
             int noOfSeats = addBookingDTO.Seats.Count();
@@ -133,18 +167,23 @@ namespace MovieBookingBackend.Services
             return totalPrice;
         }
 
+        /// <summary>
+        /// Gets a list of all bookings
+        /// </summary>
+        /// <returns>List of all bookings</returns>
+        /// <exception cref="NoBookingsFoundException">Thrown if no bookings are found</exception>
         public async Task<IEnumerable<BookingDTO>> GetAllBookings()
         {
             try
             {
                 var bookings = await _repository.GetAll();
-                if(bookings.Count() <=0)
+                if (bookings.Count() <= 0)
                 {
                     throw new NoBookingsFoundException($"No bookings found");
                 }
 
                 IList<BookingDTO> bookingDTOs = new List<BookingDTO>();
-                foreach(var booking in bookings)
+                foreach (var booking in bookings)
                 {
                     BookingDTO bookingDTO = _mapper.Map<BookingDTO>(booking);
                     bookingDTO.ShowtimeDetails = GetShowtimeDetails(booking.Showtime);
@@ -154,13 +193,19 @@ namespace MovieBookingBackend.Services
 
                 return bookingDTOs;
             }
-            catch(Exception ex )
+            catch (Exception ex)
             {
                 _logger.LogCritical($"No bookings found. {ex}");
                 throw new NoBookingsFoundException($"No bookings found. {ex.Message}");
             }
         }
 
+        /// <summary>
+        /// Gets a list of all bookings for a user
+        /// </summary>
+        /// <param name="userId">ID of the user</param>
+        /// <returns>List of all bookings for the user</returns>
+        /// <exception cref="NoBookingsFoundException">Thrown if no bookings are found for the user</exception>
         public async Task<IEnumerable<BookingDTO>> GetAllBookingsByUserId(int userId)
         {
             try
@@ -189,6 +234,12 @@ namespace MovieBookingBackend.Services
             }
         }
 
+        /// <summary>
+        /// Gets a booking by its ID
+        /// </summary>
+        /// <param name="id">ID of the booking to be fetched</param>
+        /// <returns>Booking with the specified ID</returns>
+        /// <exception cref="NoSuchBookingException">Thrown if no booking is found with the specified ID</exception>
         public async Task<BookingDTO> GetBookingById(int id)
         {
             try
@@ -211,22 +262,32 @@ namespace MovieBookingBackend.Services
             }
         }
 
+        /// <summary>
+        /// Updates the status of a booking
+        /// </summary>
+        /// <param name="bookingStatusDTO">DTO containing booking status details</param>
+        /// <returns>Updated booking</returns>
+        /// <exception cref="UnableToUpdateBookingException">Thrown if the booking cannot be updated</exception>
         public async Task<BookingDTO> UpdateBookingStatus(BookingStatusDTO bookingStatusDTO)
         {
             try
             {
                 var booking = await _repository.GetById(bookingStatusDTO.Id);
                 var seats = booking.Seats.ToList();
-                if(bookingStatusDTO.Status == "Cancelled"){
-                    if (booking.Showtime.StartTime < DateTime.Now.AddHours(-6)){
+                if (bookingStatusDTO.Status == "Cancelled")
+                {
+                    if (booking.Showtime.StartTime < DateTime.Now.AddHours(-6))
+                    {
                         CancelBookingSeats(seats);
                     }
                     throw new UnableToDeleteBookingException("Unable to cancel booking as the booking is scheduled in less than 6 hours");
                 }
-                else if (bookingStatusDTO.Status == "Failed"){
+                else if (bookingStatusDTO.Status == "Failed")
+                {
                     CancelBookingSeats(seats);
                 }
-                else{
+                else
+                {
                     ResetSeatsStatus(seats, bookingStatusDTO);
                 }
 
@@ -239,13 +300,17 @@ namespace MovieBookingBackend.Services
 
                 return bookingDTO;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.LogCritical($"Could not update booking with ID {bookingStatusDTO.Id}. {ex}");
                 throw new UnableToUpdateBookingException($"Could not update booking with ID {bookingStatusDTO.Id}. {ex.Message}");
             }
         }
 
+        /// <summary>
+        /// Cancels the seats for a booking
+        /// </summary>
+        /// <param name="seats">List of seats to be cancelled</param>
         private async void CancelBookingSeats(List<Seat> seats)
         {
             foreach (var seat in seats)
@@ -260,6 +325,12 @@ namespace MovieBookingBackend.Services
                 await _seatService.UpdateSeat(updateSeatDTO);
             }
         }
+
+        /// <summary>
+        /// Resets the status of seats for a booking
+        /// </summary>
+        /// <param name="seats">List of seats to be reset</param>
+        /// <param name="bookingStatusDTO">DTO containing booking status details</param>
         private async void ResetSeatsStatus(List<Seat> seats, BookingStatusDTO bookingStatusDTO)
         {
             foreach (var seat in seats)
@@ -274,6 +345,12 @@ namespace MovieBookingBackend.Services
                 await _seatService.UpdateSeat(updateSeatDTO);
             }
         }
+
+        /// <summary>
+        /// Gets the showtime details for a booking
+        /// </summary>
+        /// <param name="showtime">Showtime object</param>
+        /// <returns>Collection of showtime details</returns>
         private ICollection<string> GetShowtimeDetails(Showtime showtime)
         {
             IList<string> showtimeDetails = new List<string>()
@@ -285,10 +362,16 @@ namespace MovieBookingBackend.Services
 
             return showtimeDetails;
         }
+
+        /// <summary>
+        /// Gets the seat numbers for a booking
+        /// </summary>
+        /// <param name="seats">Collection of seats</param>
+        /// <returns>Collection of seat numbers</returns>
         private ICollection<string> GetSeatNumbers(ICollection<Seat> seats)
         {
             IList<string> seatNumbers = new List<string>();
-            foreach(var seat in seats)
+            foreach (var seat in seats)
             {
                 seatNumbers.Add($"{seat.Row}{seat.SeatNumber}");
             }
@@ -296,13 +379,21 @@ namespace MovieBookingBackend.Services
         }
     }
 
+    /// <summary>
+    /// Extension methods for DateTime
+    /// </summary>
     public static class DateTimeExtensions
     {
+        /// <summary>
+        /// Gets the start of the week for a given DateTime
+        /// </summary>
+        /// <param name="dt">The DateTime</param>
+        /// <param name="startOfWeek">The start day of the week</param>
+        /// <returns>The start of the week</returns>
         public static DateTime StartOfWeek(this DateTime dt, DayOfWeek startOfWeek)
         {
             int diff = (7 + (dt.DayOfWeek - startOfWeek)) % 7;
             return dt.AddDays(-1 * diff).Date;
         }
     }
-
 }

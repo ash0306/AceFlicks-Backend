@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MovieBookingBackend.Exceptions.Showtime;
@@ -12,6 +13,7 @@ namespace MovieBookingBackend.Controllers
 {
     [Route("api/showtimes")]
     [ApiController]
+    [EnableCors("AllowSpecificOrigin")]
     public class ShowtimeController : ControllerBase
     {
         private readonly IShowtimeService _showtimeService;

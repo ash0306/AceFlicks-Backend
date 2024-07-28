@@ -18,6 +18,13 @@ namespace MovieBookingBackend.Services
         private readonly IMapper _mapper;
         private readonly ILogger<UserAuthService> _logger;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="UserAuthService"/> class.
+        /// </summary>
+        /// <param name="repository">The repository instance used for user data access.</param>
+        /// <param name="tokenService">The token service for generating JWT tokens.</param>
+        /// <param name="mapper">The AutoMapper instance for object mapping.</param>
+        /// <param name="logger">The logger instance for logging operations.</param>
         public UserAuthService(IRepository<int, User> repository, ITokenService tokenService, IMapper mapper, ILogger<UserAuthService> logger)
         {
             _repository = repository;
@@ -25,6 +32,16 @@ namespace MovieBookingBackend.Services
             _mapper = mapper;
             _logger = logger;
         }
+
+        /// <summary>
+        /// Authenticates a user and returns a JWT token if successful.
+        /// </summary>
+        /// <param name="userLoginDTO">The login details of the user.</param>
+        /// <returns>A <see cref="UserLoginReturnDTO"/> containing the user's email and JWT token.</returns>
+        /// <exception cref="NoSuchUserException">Thrown if the user does not exist.</exception>
+        /// <exception cref="UserNotActiveException">Thrown if the user is not active.</exception>
+        /// <exception cref="UnauthorizedUserException">Thrown if the email or password is incorrect.</exception>
+        /// <exception cref="UnableToLoginException">Thrown if an error occurs during login.</exception>
         public async Task<UserLoginReturnDTO> Login(UserLoginDTO userLoginDTO)
         {
             User user;
@@ -65,6 +82,12 @@ namespace MovieBookingBackend.Services
             }
         }
 
+        /// <summary>
+        /// Compares the given encrypted password with the stored password hash.
+        /// </summary>
+        /// <param name="encryptedPassword">The encrypted password to compare.</param>
+        /// <param name="password">The stored password hash.</param>
+        /// <returns>True if the passwords match; otherwise, false.</returns>
         private bool ComparePassword(byte[] encryptedPassword, byte[] password)
         {
             for (int i = 0; i < encryptedPassword.Length; i++)
@@ -77,6 +100,13 @@ namespace MovieBookingBackend.Services
             return true;
         }
 
+        /// <summary>
+        /// Registers a new user and returns the user's details.
+        /// </summary>
+        /// <param name="userRegisterDTO">The registration details of the user.</param>
+        /// <returns>A <see cref="UserDTO"/> containing the registered user's details.</returns>
+        /// <exception cref="UserAlreadyExistsException">Thrown if a user with the given email already exists.</exception>
+        /// <exception cref="UnableToRegisterException">Thrown if an error occurs during registration.</exception>
         public async Task<UserDTO> Register(UserRegisterDTO userRegisterDTO)
         {
             User user;
@@ -108,6 +138,13 @@ namespace MovieBookingBackend.Services
             }
         }
 
+        /// <summary>
+        /// Registers a new admin user and returns the user's details.
+        /// </summary>
+        /// <param name="userRegisterDTO">The registration details of the admin user.</param>
+        /// <returns>A <see cref="UserDTO"/> containing the registered admin user's details.</returns>
+        /// <exception cref="UserAlreadyExistsException">Thrown if a user with the given email already exists.</exception>
+        /// <exception cref="UnableToRegisterException">Thrown if an error occurs during registration.</exception>
         public async Task<UserDTO> RegisterAdmin(UserRegisterDTO userRegisterDTO)
         {
             User user;
@@ -139,6 +176,13 @@ namespace MovieBookingBackend.Services
             }
         }
 
+        /// <summary>
+        /// Updates the password for an existing user.
+        /// </summary>
+        /// <param name="userLoginDTO">The login details including the new password.</param>
+        /// <returns>A <see cref="UserDTO"/> containing the updated user's details.</returns>
+        /// <exception cref="NoSuchUserException">Thrown if the user does not exist.</exception>
+        /// <exception cref="UnableToUpdateUserException">Thrown if an error occurs during password update.</exception>
         public async Task<UserDTO> UpdatePassword(UserLoginDTO userLoginDTO)
         {
             User user;
