@@ -13,6 +13,8 @@ using MovieBookingBackend.Services;
 using Quartz;
 using Quartz.Impl;
 using Quartz.Spi;
+using System.Net;
+using System.Net.Sockets;
 using System.Text;
 
 namespace MovieBookingBackend
@@ -34,7 +36,7 @@ namespace MovieBookingBackend
                 options.AddPolicy("AllowSpecificOrigin",
                     builder =>
                     {
-                        builder.WithOrigins("https://localhost:3000")
+                        builder.WithOrigins("https://localhost:3000", "https://192.168.1.7:3000")
                                .AllowAnyHeader()
                                .AllowAnyMethod()
                                .AllowCredentials();
@@ -162,9 +164,9 @@ namespace MovieBookingBackend
             }
 
             app.UseHttpsRedirection();
+            app.UseCors("AllowSpecificOrigin");
             app.UseAuthentication();
             app.UseAuthorization();
-            app.UseCors("AllowSpecificOrigin");
             app.MapControllers();
 
             app.Run();

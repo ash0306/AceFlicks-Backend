@@ -17,9 +17,9 @@ namespace MovieBookingBackend.Models.DTOs.Showtimes
         [EnumValidation(typeof(ShowtimeStatus))]
         public string Status { get; set; }
         [Required]
-        public int MovieId { get; set; }
+        public string Movie { get; set; }
         [Required]
-        public int TheatreId { get; set; }
+        public string Theatre { get; set; }
         [Required]
         public int TotalSeats { get; set; }
         [Required]

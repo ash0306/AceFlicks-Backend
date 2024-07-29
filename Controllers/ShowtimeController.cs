@@ -77,9 +77,9 @@ namespace MovieBookingBackend.Controllers
         }
 
         [HttpGet("movie/{movieName}")]
-        [ProducesResponseType(typeof(IEnumerable<ShowtimeDTO>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(IEnumerable<ShowtimeGroupDTO>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<IEnumerable<ShowtimeDTO>>> GetMovieShowtimes(string movieName)
+        public async Task<ActionResult<IEnumerable<ShowtimeGroupDTO>>> GetMovieShowtimes(string movieName)
         {
             try
             {
@@ -96,7 +96,7 @@ namespace MovieBookingBackend.Controllers
         [HttpGet("theatre/{theatreName}")]
         [ProducesResponseType(typeof(IEnumerable<IGrouping<int, ShowtimeDTO>>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<IEnumerable<IGrouping<int, ShowtimeDTO>>>> GetShowtimesByTheatre(string theatreName)
+        public async Task<ActionResult<IEnumerable<ShowtimeGroupDTO>>> GetShowtimesByTheatre(string theatreName)
         {
             try
             {

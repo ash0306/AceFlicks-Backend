@@ -12,9 +12,9 @@ using System.Security.Claims;
 
 namespace MovieBookingBackend.Controllers
 {
+    [EnableCors("AllowSpecificOrigin")]
     [Route("api/auth")]
     [ApiController]
-    [EnableCors("AllowSpecificOrigin")]
     public class UserAuthController : ControllerBase
     {
         private readonly IUserAuthService _userAuthService;
@@ -111,15 +111,15 @@ namespace MovieBookingBackend.Controllers
             }
         }
 
-
+        [Authorize]
         [HttpPost("logout")]
+        [EnableCors("AllowSpecificOrigin")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public ActionResult Logout()
         {
             try
             {
-                var userId = User.FindFirstValue(ClaimTypes.Name);
                 if (Request.Cookies["aceTickets-token"] != null)
                 {
                     Response.Cookies.Delete("aceTickets-token", new CookieOptions

@@ -163,7 +163,7 @@ namespace MovieBookingBackend.Services
         /// <param name="movieName">The name of the movie.</param>
         /// <returns>A list of showtime DTOs grouped by theatre ID.</returns>
         /// <exception cref="NoShowtimesFoundException">Thrown when no showtimes are found for the movie.</exception>
-        public async Task<IEnumerable<IGrouping<int, ShowtimeDTO>>> GetShowtimesForAMovie(string movieName)
+        public async Task<IEnumerable<ShowtimeGroupDTO>> GetShowtimesForAMovie(string movieName)
         {
             try
             {
@@ -178,10 +178,30 @@ namespace MovieBookingBackend.Services
                 foreach (var item in upcomigShowtimes)
                 {
                     var showtime = _mapper.Map<ShowtimeDTO>(item);
+                    showtime.Theatre = item.Theatre.Name;
+                    showtime.Movie = item.Movie.Title;
                     showtimeDTOs.Add(showtime);
                 }
-                var result = showtimeDTOs.GroupBy(s => s.TheatreId);
-                return result;
+                var groupedShowtimes = upcomigShowtimes
+                    .GroupBy(s => s.Theatre.Name)
+                    .Select(g => new ShowtimeGroupDTO
+                    {
+                        Name = g.Key,
+                        Showtimes = g.Select(s => new ShowtimeDTO
+                        {
+                            Id = s.Id,
+                            StartTime = s.StartTime,
+                            EndTime = s.EndTime,
+                            Status = s.Status.ToString(),
+                            Movie = s.Movie.Title,
+                            Theatre = s.Theatre.Name,
+                            TotalSeats = s.TotalSeats,
+                            AvailableSeats = s.AvailableSeats,
+                            TicketPrice = s.TicketPrice
+                        }).ToList()
+                    })
+                    .ToList();
+                return groupedShowtimes;
             }
             catch (Exception ex)
             {
@@ -195,7 +215,7 @@ namespace MovieBookingBackend.Services
         /// <param name="theatreName">The name of the theatre.</param>
         /// <returns>A list of showtime DTOs grouped by movie ID.</returns>
         /// <exception cref="NoShowtimesFoundException">Thrown when no showtimes are found for the theatre.</exception>
-        public async Task<IEnumerable<IGrouping<int, ShowtimeDTO>>> GetShowtimesForATheatre(string theatreName)
+        public async Task<IEnumerable<ShowtimeGroupDTO>> GetShowtimesForATheatre(string theatreName)
         {
             try
             {
@@ -210,10 +230,30 @@ namespace MovieBookingBackend.Services
                 foreach (var item in upcomigShowtimes)
                 {
                     var showtime = _mapper.Map<ShowtimeDTO>(item);
+                    showtime.Theatre = item.Theatre.Name;
+                    showtime.Movie = item.Movie.Title;
                     showtimeDTOs.Add(showtime);
                 }
-                var result = showtimeDTOs.GroupBy(s => s.MovieId);
-                return result;
+                var groupedShowtimes = upcomigShowtimes
+                    .GroupBy(s => s.Movie.Title)
+                    .Select(g => new ShowtimeGroupDTO
+                    {
+                        Name = g.Key,
+                        Showtimes = g.Select(s => new ShowtimeDTO
+                        {
+                            Id = s.Id,
+                            StartTime = s.StartTime,
+                            EndTime = s.EndTime,
+                            Status = s.Status.ToString(),
+                            Movie = s.Movie.Title,
+                            Theatre = s.Theatre.Name,
+                            TotalSeats = s.TotalSeats,
+                            AvailableSeats = s.AvailableSeats,
+                            TicketPrice = s.TicketPrice
+                        }).ToList()
+                    })
+                    .ToList();
+                return groupedShowtimes;
             }
             catch (Exception ex)
             {
