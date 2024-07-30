@@ -105,5 +105,23 @@ namespace MovieBookingBackend.Controllers
                 return BadRequest(new ErrorModel(400, ex.Message));
             }
         }
+
+        [HttpPost("reserveSeats")]
+        [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<bool>> ReserveSeats([FromBody]IEnumerable<int> seats)
+        {
+            try
+            {
+                var result = await _bookingService.ReserveSeats(seats);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogCritical(ex.Message, ex);
+                return NotFound(new ErrorModel(404, ex.Message));
+            }
+        }
+
     }
 }

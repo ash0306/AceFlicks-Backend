@@ -377,6 +377,29 @@ namespace MovieBookingBackend.Services
             }
             return seatNumbers;
         }
+
+        public async Task<bool> ReserveSeats(IEnumerable<int> seats)
+        {
+            try
+            {
+                foreach (var id in seats)
+                {
+                    var seat = await _seatService.GetSeatById(id);
+                    UpdateSeatStatusDTO newDto = new UpdateSeatStatusDTO()
+                    {
+                        Id = seat.Id,
+                        SeatStatus = SeatStatus.Reserved.ToString(),
+                    };
+                    await _seatService.UpdateSeatStatus(newDto);
+                }
+                return true;
+            }
+            catch(Exception ex)
+            {
+                _logger.LogCritical("Unable to update seat. " + ex);
+                throw new UnableToUpdateSeatException("Unable to update seat. " + ex.Message);
+            }
+        }
     }
 
     /// <summary>
