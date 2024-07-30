@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -18,16 +19,20 @@ namespace MovieBookingBackend.Controllers
     public class UserAuthController : ControllerBase
     {
         private readonly IUserAuthService _userAuthService;
+        private readonly IUserService _userService;
         private readonly ILogger<UserAuthController> _logger;
         private readonly IEmailSender _emailSenderService;
         private readonly IEmailVerificationService _emailVerificationService;
+        private readonly IMapper _mapper;
 
-        public UserAuthController(IUserAuthService userAuthService, ILogger<UserAuthController> logger, IEmailSender emailSenderService, IEmailVerificationService emailVerificationService)
+        public UserAuthController(IUserAuthService userAuthService, IUserService userService, ILogger<UserAuthController> logger, IEmailSender emailSenderService, IEmailVerificationService emailVerificationService, IMapper mapper)
         {
             _userAuthService = userAuthService;
+            _userService = userService;
             _logger = logger;
             _emailSenderService = emailSenderService;
             _emailVerificationService = emailVerificationService;
+            _mapper = mapper;
         }
 
         [HttpPost("register")]
@@ -169,6 +174,25 @@ namespace MovieBookingBackend.Controllers
             catch (Exception ex)
             {
                 return StatusCode(500, new { error = ex.Message });
+            }
+        }
+
+        [HttpGet("user")]
+        [ProducesResponseType(typeof(UserDTO), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<UserDTO>> GetUser()
+        {
+            try
+            {
+                var result = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                Console.WriteLine(result);
+                var user = await _userService.GetUserById(int.Parse(result));
+                return Ok(user);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogCritical(ex.Message, ex);
+                return BadRequest(new ErrorModel(500, ex.Message));
             }
         }
     }
