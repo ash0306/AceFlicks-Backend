@@ -33,6 +33,7 @@ namespace MovieBookingBackend.Mappings
             CreateMap<Showtime, ShowtimeDTO>().ReverseMap();
             CreateMap<Showtime, UpdateShowtimeDTO>().ReverseMap();
             CreateMap<Showtime, AddShowtimeDTO>().ReverseMap();
+            CreateMap<Showtime, ShowtimeDetailsDTO>().ReverseMap();
             #endregion
 
             #region Seat Mappings

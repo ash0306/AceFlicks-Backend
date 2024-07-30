@@ -126,5 +126,24 @@ namespace MovieBookingBackend.Controllers
                 return NotFound(new ErrorModel(404, ex.Message));
             }
         }
+
+        [HttpGet("{showtimeId}")]
+        [ProducesResponseType(typeof(ShowtimeDetailsDTO), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<ShowtimeDetailsDTO>> GetShowtimeDetailsById(int showtimeId)
+        {
+            try
+            {
+                var result = await _showtimeService.GetShowtimeDetailsById(showtimeId);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogCritical(ex.Message, ex);
+                return NotFound(new ErrorModel(404, ex.Message));
+            }
+        }
+
+
     }
 }

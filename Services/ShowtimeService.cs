@@ -293,5 +293,27 @@ namespace MovieBookingBackend.Services
                 throw new NoSeatsFoundException($"No seats for the given showtime. {ex.Message}");
             }
         }
+
+        /// <summary>
+        /// Get details of a specific showtime with its id
+        /// </summary>
+        /// <param name="id">Show time id</param>
+        /// <returns>Showtime Details</returns>
+        /// <exception cref="NoSuchShowtimeException">Thrown when the showtime is not found</exception>
+        public async Task<ShowtimeDetailsDTO> GetShowtimeDetailsById(int id)
+        {
+            try
+            {
+                var results = await _repository.GetAll();
+                var showtime = results.FirstOrDefault(s => s.Id == id);
+                ShowtimeDetailsDTO showtimeDetails = _mapper.Map<ShowtimeDetailsDTO>(showtime);
+                return showtimeDetails;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogCritical($"No showtimes were found. {ex.Message}");
+                throw new NoSuchShowtimeException($"No showtime with ID {id} was found. {ex.Message}");
+            }
+        }
     }
 }
