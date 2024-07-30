@@ -180,6 +180,7 @@ namespace MovieBookingBackend.Services
                     var showtime = _mapper.Map<ShowtimeDTO>(item);
                     showtime.Theatre = item.Theatre.Name;
                     showtime.Movie = item.Movie.Title;
+                    showtime.MoviePoster = item.Movie.ImageUrl;
                     showtimeDTOs.Add(showtime);
                 }
                 var groupedShowtimes = upcomigShowtimes
@@ -195,6 +196,7 @@ namespace MovieBookingBackend.Services
                             Status = s.Status.ToString(),
                             Movie = s.Movie.Title,
                             Theatre = s.Theatre.Name,
+                            MoviePoster = s.Movie.ImageUrl,
                             TotalSeats = s.TotalSeats,
                             AvailableSeats = s.AvailableSeats,
                             TicketPrice = s.TicketPrice
@@ -232,6 +234,7 @@ namespace MovieBookingBackend.Services
                     var showtime = _mapper.Map<ShowtimeDTO>(item);
                     showtime.Theatre = item.Theatre.Name;
                     showtime.Movie = item.Movie.Title;
+                    showtime.MoviePoster = item.Movie.ImageUrl;
                     showtimeDTOs.Add(showtime);
                 }
                 var groupedShowtimes = upcomigShowtimes
@@ -247,6 +250,7 @@ namespace MovieBookingBackend.Services
                             Status = s.Status.ToString(),
                             Movie = s.Movie.Title,
                             Theatre = s.Theatre.Name,
+                            MoviePoster = s.Movie.ImageUrl,
                             TotalSeats = s.TotalSeats,
                             AvailableSeats = s.AvailableSeats,
                             TicketPrice = s.TicketPrice
