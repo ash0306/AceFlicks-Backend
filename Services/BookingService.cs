@@ -56,14 +56,6 @@ namespace MovieBookingBackend.Services
 
                 Booking booking = await AddBookingDTOtoBooking(addBookingDTO);
 
-                foreach (var seatId in addBookingDTO.Seats)
-                {
-                    SeatDTO seat = await _seatService.GetSeatById(seatId);
-                    if (seat.SeatStatus == "Reserved")
-                    {
-                        throw new SeatHasBeenReservedException($"Seat with ID {seat.Id} has been reserved/blocked by another user. Please reselect your seats and try again.");
-                    }
-                }
                 booking.Status = BookingStatus.Booked;
 
                 var newBooking = await _repository.Add(booking);
@@ -164,6 +156,9 @@ namespace MovieBookingBackend.Services
             Showtime showtime = await _showtimeRepository.GetById(addBookingDTO.ShowtimeId);
 
             float totalPrice = showtime.TicketPrice * noOfSeats;
+            float convenienceFee = (totalPrice * 10) / 100;
+            float gst = (convenienceFee * 18) / 100;
+            totalPrice = totalPrice * convenienceFee + gst;
             return totalPrice;
         }
 
@@ -385,16 +380,45 @@ namespace MovieBookingBackend.Services
                 foreach (var id in seats)
                 {
                     var seat = await _seatService.GetSeatById(id);
-                    UpdateSeatStatusDTO newDto = new UpdateSeatStatusDTO()
+                    if(seat.SeatStatus == "Reserved")
+                    {
+                        throw new SeatHasBeenReservedException("The seat(s) you are trying to book has been already reserved by another user. Please try again!!");
+                    }
+                    UpdateSeatDTO newDto = new UpdateSeatDTO()
                     {
                         Id = seat.Id,
                         SeatStatus = SeatStatus.Reserved.ToString(),
+                        IsAvailable = false
                     };
-                    await _seatService.UpdateSeatStatus(newDto);
+                    await _seatService.UpdateSeat(newDto);
                 }
                 return true;
             }
             catch(Exception ex)
+            {
+                _logger.LogCritical("Unable to update seat. " + ex);
+                throw new UnableToUpdateSeatException("Unable to update seat. " + ex.Message);
+            }
+        }
+
+        public async Task<bool> FreeSeats(IEnumerable<int> seats)
+        {
+            try
+            {
+                foreach (var id in seats)
+                {
+                    var seat = await _seatService.GetSeatById(id);
+                    UpdateSeatDTO newDto = new UpdateSeatDTO()
+                    {
+                        Id = seat.Id,
+                        SeatStatus = SeatStatus.Available.ToString(),
+                        IsAvailable = true
+                    };
+                    await _seatService.UpdateSeat(newDto);
+                }
+                return true;
+            }
+            catch (Exception ex)
             {
                 _logger.LogCritical("Unable to update seat. " + ex);
                 throw new UnableToUpdateSeatException("Unable to update seat. " + ex.Message);

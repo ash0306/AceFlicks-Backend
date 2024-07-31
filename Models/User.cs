@@ -14,6 +14,6 @@ namespace MovieBookingBackend.Models
         public byte[] PasswordHash { get; set; }
         public byte[] PasswordHashKey { get; set; }
         public UserRole Role { get; set; }
-        public ICollection<Booking> Bookings { get; set; }
+        public ICollection<Booking>? Bookings { get; set; }
     }
 }

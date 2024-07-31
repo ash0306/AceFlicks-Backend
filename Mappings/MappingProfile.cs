@@ -18,6 +18,7 @@ namespace MovieBookingBackend.Mappings
             CreateMap<User, UserDTO>().ReverseMap();
             CreateMap<User, UserLoginDTO>().ReverseMap();
             CreateMap<User, UserLoginReturnDTO>().ReverseMap();
+            CreateMap<User, UpdateUserDTO>().ReverseMap();
             #endregion
 
             #region Movie Mappings

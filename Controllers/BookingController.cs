@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Cors;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MovieBookingBackend.Interfaces;
@@ -21,6 +22,7 @@ namespace MovieBookingBackend.Controllers
             _logger = logger;
         }
 
+        [Authorize(Roles = "User")]
         [HttpPost]
         [ProducesResponseType(typeof(BookingDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status400BadRequest)]
@@ -38,6 +40,7 @@ namespace MovieBookingBackend.Controllers
             }
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpGet]
         [ProducesResponseType(typeof(BookingDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status404NotFound)]
@@ -55,6 +58,7 @@ namespace MovieBookingBackend.Controllers
             }
         }
 
+        [Authorize(Roles = "User")]
         [HttpGet("user/{id}")]
         [ProducesResponseType(typeof(BookingDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status404NotFound)]
@@ -72,6 +76,7 @@ namespace MovieBookingBackend.Controllers
             }
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpGet("{id}")]
         [ProducesResponseType(typeof(BookingDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status404NotFound)]
@@ -88,6 +93,7 @@ namespace MovieBookingBackend.Controllers
                 return NotFound(new ErrorModel(404, ex.Message));
             }
         }
+
 
         [HttpPut("status")]
         [ProducesResponseType(typeof(BookingDTO), StatusCodes.Status200OK)]
@@ -106,6 +112,7 @@ namespace MovieBookingBackend.Controllers
             }
         }
 
+        [Authorize(Roles = "User")]
         [HttpPost("reserveSeats")]
         [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status404NotFound)]
@@ -114,6 +121,24 @@ namespace MovieBookingBackend.Controllers
             try
             {
                 var result = await _bookingService.ReserveSeats(seats);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogCritical(ex.Message, ex);
+                return NotFound(new ErrorModel(404, ex.Message));
+            }
+        }
+
+        [Authorize(Roles = "User")]
+        [HttpPost("freeSeats")]
+        [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<bool>> FreeSeats([FromBody]IEnumerable<int> seats)
+        {
+            try
+            {
+                var result = await _bookingService.FreeSeats(seats);
                 return Ok(result);
             }
             catch (Exception ex)

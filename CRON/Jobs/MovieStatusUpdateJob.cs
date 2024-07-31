@@ -33,7 +33,7 @@ namespace MovieBookingBackend.CRON.Jobs
                     {
                         movie.Status = MovieStatus.NotRunning;
                     }
-                    else if(movie.Status == MovieStatus.NotRunning && movie.StartDate <= currentDate)
+                    else if(movie.Status == MovieStatus.NotRunning && movie.StartDate == currentDate)
                     {
                         movie.Status = MovieStatus.Running;
                     }

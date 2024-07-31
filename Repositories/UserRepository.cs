@@ -138,13 +138,9 @@ namespace MovieBookingBackend.Repositories
             {
                 throw new NoSuchUserException($"No user with ID {item.Id} was found");
             }
-            _context.Update(user);
+            _context.Update(item);
 
-            int noOfRowsAffected = await _context.SaveChangesAsync();
-            if (noOfRowsAffected <= 0)
-            {
-                throw new UnableToUpdateUserException($"Unable to update user with ID {item.Id}");
-            }
+            await _context.SaveChangesAsync();
 
             return user;
         }

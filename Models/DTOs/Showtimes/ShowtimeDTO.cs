@@ -23,6 +23,8 @@ namespace MovieBookingBackend.Models.DTOs.Showtimes
         [Required]
         public string Theatre { get; set; }
         [Required]
+        public string TheatreLocation { get; set; }
+        [Required]
         public int TotalSeats { get; set; }
         [Required]
         public int AvailableSeats { get; set; }

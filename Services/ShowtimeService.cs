@@ -85,6 +85,9 @@ namespace MovieBookingBackend.Services
                 await _seatService.AddSeats(newShowtime);
 
                 var showtimeDTO = _mapper.Map<ShowtimeDTO>(result);
+                showtimeDTO.Movie = newShowtime.Movie.Title;
+                showtimeDTO.MoviePoster = newShowtime.Movie.ImageUrl;
+                showtimeDTO.Theatre = newShowtime.Theatre.Name;
                 return showtimeDTO;
             }
             catch (Exception ex)
@@ -110,6 +113,9 @@ namespace MovieBookingBackend.Services
                 {
                     var showtimeDTO = _mapper.Map<ShowtimeDTO>(item);
                     showtimeDTO.Status = item.Status.ToString();
+                    showtimeDTO.Movie = item.Movie.Title;
+                    showtimeDTO.MoviePoster = item.Movie.ImageUrl;
+                    showtimeDTO.Theatre = item.Theatre.Name;
                     showtimes.Add(showtimeDTO);
                 }
                 return showtimes;
@@ -148,6 +154,9 @@ namespace MovieBookingBackend.Services
                 await _seatService.AddSeats(newShowtime);
 
                 ShowtimeDTO returnDTO = _mapper.Map<ShowtimeDTO>(newShowtime);
+                returnDTO.Movie = newShowtime.Movie.Title;
+                returnDTO.MoviePoster = newShowtime.Movie.ImageUrl;
+                returnDTO.Theatre = newShowtime.Theatre.Name;
                 return returnDTO;
             }
             catch (Exception ex)
@@ -196,6 +205,7 @@ namespace MovieBookingBackend.Services
                             Status = s.Status.ToString(),
                             Movie = s.Movie.Title,
                             Theatre = s.Theatre.Name,
+                            TheatreLocation = s.Theatre.Location,
                             MoviePoster = s.Movie.ImageUrl,
                             TotalSeats = s.TotalSeats,
                             AvailableSeats = s.AvailableSeats,
@@ -221,47 +231,46 @@ namespace MovieBookingBackend.Services
         {
             try
             {
-                var theatre = (await _theatreRepository.GetAll()).FirstOrDefault(t => t.Name == theatreName);
-                if (theatre == null)
+                var theatres = (await _theatreRepository.GetAll())
+                    .Where(t => t.Name == theatreName)
+                    .ToList();
+
+                if (!theatres.Any())
                 {
                     throw new NoShowtimesFoundException($"No showtimes for theatre {theatreName} were found");
                 }
-                var showtimes = theatre.Showtimes.ToList();
-                var upcomigShowtimes = showtimes.Where(s => s.Status == ShowtimeStatus.Active);
-                IList<ShowtimeDTO> showtimeDTOs = new List<ShowtimeDTO>();
-                foreach (var item in upcomigShowtimes)
+
+                var showtimeDTOs = new List<ShowtimeDTO>();
+
+                foreach (var theatre in theatres)
                 {
-                    var showtime = _mapper.Map<ShowtimeDTO>(item);
-                    showtime.Theatre = item.Theatre.Name;
-                    showtime.Movie = item.Movie.Title;
-                    showtime.MoviePoster = item.Movie.ImageUrl;
-                    showtimeDTOs.Add(showtime);
+                    var upcomigShowtimes = theatre.Showtimes.Where(s => s.Status == ShowtimeStatus.Active).ToList();
+
+                    foreach (var item in upcomigShowtimes)
+                    {
+                        var showtime = _mapper.Map<ShowtimeDTO>(item);
+                        showtime.Theatre = item.Theatre.Name;
+                        showtime.TheatreLocation = item.Theatre.Location;
+                        showtime.Movie = item.Movie.Title;
+                        showtime.MoviePoster = item.Movie.ImageUrl;
+                        showtimeDTOs.Add(showtime);
+                    }
                 }
-                var groupedShowtimes = upcomigShowtimes
-                    .GroupBy(s => s.Movie.Title)
+
+                var groupedShowtimes = showtimeDTOs
+                    .GroupBy(s => new { s.Theatre, s.TheatreLocation })
                     .Select(g => new ShowtimeGroupDTO
                     {
-                        Name = g.Key,
-                        Showtimes = g.Select(s => new ShowtimeDTO
-                        {
-                            Id = s.Id,
-                            StartTime = s.StartTime,
-                            EndTime = s.EndTime,
-                            Status = s.Status.ToString(),
-                            Movie = s.Movie.Title,
-                            Theatre = s.Theatre.Name,
-                            MoviePoster = s.Movie.ImageUrl,
-                            TotalSeats = s.TotalSeats,
-                            AvailableSeats = s.AvailableSeats,
-                            TicketPrice = s.TicketPrice
-                        }).ToList()
+                        Name = $"{g.Key.Theatre} - {g.Key.TheatreLocation}",
+                        Showtimes = g.ToList()
                     })
                     .ToList();
+
                 return groupedShowtimes;
             }
             catch (Exception ex)
             {
-                throw new NoShowtimesFoundException($"No showtimes for theatre {theatreName} were found");
+                throw new NoShowtimesFoundException($"No showtimes for theatre {theatreName} were found", ex);
             }
         }
 

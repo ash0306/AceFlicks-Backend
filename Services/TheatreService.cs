@@ -103,6 +103,38 @@ namespace MovieBookingBackend.Services
         }
 
         /// <summary>
+        /// Gets all unique theatre names.
+        /// </summary>
+        /// <returns>A list of unique theatre names.</returns>
+        /// <exception cref="NoTheatresFoundException">Thrown when no theatres are found.</exception>
+        public async Task<IEnumerable<string>> GetAllTheatreNames()
+        {
+            try
+            {
+                IEnumerable<Theatre> theatres = await _repository.GetAll();
+                if (!theatres.Any())
+                {
+                    _logger.LogCritical("No theatres found");
+                    throw new NoTheatresFoundException("No theatres found");
+                }
+
+                HashSet<string> uniqueTheatreNames = new HashSet<string>();
+                foreach (var theatre in theatres)
+                {
+                    uniqueTheatreNames.Add(theatre.Name);
+                }
+
+                return uniqueTheatreNames;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogCritical("Unable to fetch theatres: " + ex.Message);
+                throw new NoTheatresFoundException("Unable to fetch theatres: " + ex.Message);
+            }
+        }
+
+
+        /// <summary>
         /// Gets a theatre by ID.
         /// </summary>
         /// <param name="id">The ID of the theatre.</param>

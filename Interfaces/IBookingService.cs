@@ -11,5 +11,6 @@ namespace MovieBookingBackend.Interfaces
         public Task<BookingDTO> GetBookingById(int id);
         public Task<BookingDTO> UpdateBookingStatus(BookingStatusDTO bookingStatusDTO);
         public Task<bool> ReserveSeats(IEnumerable<int> seats);
+        public Task<bool> FreeSeats(IEnumerable<int> seats);
     }
 }

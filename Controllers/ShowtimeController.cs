@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -25,6 +26,7 @@ namespace MovieBookingBackend.Controllers
             _logger = logger;
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         [ProducesResponseType(typeof(ShowtimeDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status400BadRequest)]
@@ -42,6 +44,7 @@ namespace MovieBookingBackend.Controllers
             }
         }
 
+        [Authorize(Roles = "User,Admin")]
         [HttpGet]
         [ProducesResponseType(typeof(IEnumerable<ShowtimeDTO>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status404NotFound)]
@@ -59,6 +62,7 @@ namespace MovieBookingBackend.Controllers
             }
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPut]
         [ProducesResponseType(typeof(ShowtimeDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status404NotFound)]
@@ -76,6 +80,7 @@ namespace MovieBookingBackend.Controllers
             }
         }
 
+        [Authorize(Roles = "User")]
         [HttpGet("movie/{movieName}")]
         [ProducesResponseType(typeof(IEnumerable<ShowtimeGroupDTO>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status404NotFound)]
@@ -93,6 +98,7 @@ namespace MovieBookingBackend.Controllers
             }
         }
 
+        [Authorize(Roles = "User")]
         [HttpGet("theatre/{theatreName}")]
         [ProducesResponseType(typeof(IEnumerable<IGrouping<int, ShowtimeDTO>>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status404NotFound)]
@@ -110,6 +116,7 @@ namespace MovieBookingBackend.Controllers
             }
         }
 
+        [Authorize(Roles = "User")]
         [HttpGet("seats/{showtimeId}")]
         [ProducesResponseType(typeof(IEnumerable<SeatDTO>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status404NotFound)]
@@ -127,6 +134,7 @@ namespace MovieBookingBackend.Controllers
             }
         }
 
+        [Authorize(Roles = "User")]
         [HttpGet("{showtimeId}")]
         [ProducesResponseType(typeof(ShowtimeDetailsDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status404NotFound)]

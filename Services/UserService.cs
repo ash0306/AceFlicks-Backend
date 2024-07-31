@@ -186,16 +186,12 @@ namespace MovieBookingBackend.Services
                     throw new NoSuchUserException($"No user with ID {updateUserDTO.Id} was found");
                 }
 
-                if(!string.IsNullOrEmpty(updateUserDTO.Email))
-                {
-                    user.Email = updateUserDTO.Email;
-                }
                 if(!string.IsNullOrEmpty(updateUserDTO.PhoneNumber))
                 {
                     user.Phone = updateUserDTO.PhoneNumber;
                 }
 
-                var result = _repository.Update(user);
+                var result = await _repository.Update(user);
 
                 UserDTO userDTO = _mapper.Map<UserDTO>(result);
 

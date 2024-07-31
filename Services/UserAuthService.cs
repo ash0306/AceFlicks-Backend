@@ -68,6 +68,7 @@ namespace MovieBookingBackend.Services
                     UserLoginReturnDTO returnDTO = new UserLoginReturnDTO()
                     {
                         Email = userLoginDTO.Email,
+                        Role = user.Role.ToString(),
                         Token = _tokenService.GetUserToken(user)
                     };
                     return returnDTO;
