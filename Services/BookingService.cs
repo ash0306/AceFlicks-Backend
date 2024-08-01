@@ -18,6 +18,7 @@ namespace MovieBookingBackend.Services
         private readonly ILogger<BookingService> _logger;
         private readonly IMapper _mapper;
         private readonly ISeatService _seatService;
+        private readonly IEmailVerificationService _emailVerificationService;
 
         /// <summary>
         /// Parameterized Constructor
@@ -28,7 +29,7 @@ namespace MovieBookingBackend.Services
         /// <param name="logger">Logger for BookingService</param>
         /// <param name="mapper">Mapper for DTOs</param>
         /// <param name="seatService">Service for Seat operations</param>
-        public BookingService(IRepository<int, Booking> repository, IRepository<int, User> userRepository, IRepository<int, Showtime> showtimeRepository, ILogger<BookingService> logger, IMapper mapper, ISeatService seatService)
+        public BookingService(IRepository<int, Booking> repository, IEmailVerificationService emailVerificationService, IRepository<int, User> userRepository, IRepository<int, Showtime> showtimeRepository, ILogger<BookingService> logger, IMapper mapper, ISeatService seatService)
         {
             _repository = repository;
             _userRepository = userRepository;
@@ -36,6 +37,7 @@ namespace MovieBookingBackend.Services
             _logger = logger;
             _mapper = mapper;
             _seatService = seatService;
+            _emailVerificationService = emailVerificationService;
         }
 
         /// <summary>
@@ -86,10 +88,13 @@ namespace MovieBookingBackend.Services
                 BookingDTO bookingDTO = _mapper.Map<BookingDTO>(newBooking);
                 bookingDTO.ShowtimeDetails = GetShowtimeDetails(newBooking.Showtime);
                 bookingDTO.Seats = GetSeatNumbers(newBooking.Seats);
+
+                await _emailVerificationService.SendBookingConfirmationEmail(bookingDTO.UserId, bookingDTO);
                 if (bookingsThisWeek >= 3)
                 {
                     string offerCode = GenerateOfferCode();
                     bookingDTO.OfferMessage = $"Congratulations! You have earned a free popcorn. Use code {offerCode} at the theatre to avail this offer.";
+                    await _emailVerificationService.SendOfferCodeEmail(bookingDTO.UserId, offerCode);
                 }
 
                 return bookingDTO;
