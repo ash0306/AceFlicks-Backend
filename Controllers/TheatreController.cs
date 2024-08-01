@@ -41,7 +41,7 @@ namespace MovieBookingBackend.Controllers
             }
         }
 
-        [Authorize(Roles = "User, Admin")]
+        [Authorize]
         [HttpGet]
         [ProducesResponseType(typeof(IEnumerable<TheatreDTO>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status404NotFound)]
@@ -59,7 +59,7 @@ namespace MovieBookingBackend.Controllers
             }
         }
 
-        [Authorize(Roles = "User")]
+
         [HttpGet("names")]
         [ProducesResponseType(typeof(IEnumerable<string>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status404NotFound)]

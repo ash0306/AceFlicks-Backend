@@ -59,7 +59,7 @@ namespace MovieBookingBackend.Controllers
             }
         }
 
-        [Authorize(Roles = "User")]
+
         [HttpGet("running")]
         [ProducesResponseType(typeof(IEnumerable<MovieDTO>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status404NotFound)]
@@ -77,7 +77,7 @@ namespace MovieBookingBackend.Controllers
             }
         }
 
-        [Authorize(Roles = "User")]
+        [Authorize]
         [HttpGet("byLanguages")]
         [ProducesResponseType(typeof(IEnumerable<IGrouping<string, MovieDTO>>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status404NotFound)]
