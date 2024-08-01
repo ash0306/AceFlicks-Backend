@@ -53,6 +53,11 @@ namespace MovieBookingBackend.Services
                 {
                     throw new MaxSeatLimitException("Cannot place order as the maximum number of tickets has to be less than 5");
                 }
+                
+                var showtime = await _showtimeRepository.GetById(addBookingDTO.ShowtimeId);
+                showtime.AvailableSeats -= addBookingDTO.Seats.Count();
+                await _showtimeRepository.Update(showtime);
+
 
                 Booking booking = await AddBookingDTOtoBooking(addBookingDTO);
 
