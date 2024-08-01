@@ -12,5 +12,7 @@ namespace MovieBookingBackend.Interfaces
         public Task<IEnumerable<ShowtimeGroupDTO>> GetShowtimesForAMovie(string movieName);
         public Task<IEnumerable<ShowtimeGroupDTO>> GetShowtimesForATheatre(string theatreName);
         public Task<IEnumerable<SeatDTO>> GetSeatsByShowtime(int showtimeId);
+
+        public Task<bool> DeleteShowtime(int showtimeId);
     }
 }

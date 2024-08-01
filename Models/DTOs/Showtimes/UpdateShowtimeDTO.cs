@@ -6,10 +6,6 @@ namespace MovieBookingBackend.Models.DTOs.Showtimes
     {
         [Required]
         public int Id { get; set; }
-        [Required]
-        public int MovieId { get; set; }
-        [Required]
-        public int TheatreId { get; set; }
         public DateTime StartTime { get; set; }
         public DateTime EndTime { get; set; }
         public int TotalSeats { get; set; }

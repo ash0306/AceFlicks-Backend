@@ -98,6 +98,32 @@ namespace MovieBookingBackend.Services
         }
 
         /// <summary>
+        /// Deletes a showtime with the given id
+        /// </summary>
+        /// <param name="id">ID of the showtime to be deleted</param>
+        /// <returns>True/False</returns>
+        /// <exception cref="NoSuchShowtimeException">Thrown if no showtime with the given ID was found</exception>
+        public async Task<bool> DeleteShowtime(int id)
+        {
+            try
+            {
+                var showtime = await _repository.GetById(id);
+                if (showtime == null)
+                {
+                    throw new NoSuchShowtimeException($"No showtime with ID {id} found");
+                }
+
+                await _repository.Delete(id);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogCritical("Unable to fetch showtimes" + ex.Message);
+                throw new NoSuchShowtimeException("Unable to fetch showtime. " + ex.Message);
+            }
+        }
+
+        /// <summary>
         /// Gets all active showtimes.
         /// </summary>
         /// <returns>A list of active showtime DTOs.</returns>

@@ -11,5 +11,7 @@ namespace MovieBookingBackend.Interfaces
         public Task<TheatreDTO> GetTheatreById(int id);
         public Task<IEnumerable<string>> GetTheatreLocationsByName(string theatreName);
         public Task<TheatreDTO> UpdateTheatre(UpdateTheatreDTO updateTheatreDTO);
+
+        public Task<bool> DeleteTheatre(int id);
     }
 }

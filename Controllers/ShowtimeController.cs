@@ -152,6 +152,24 @@ namespace MovieBookingBackend.Controllers
             }
         }
 
+        [Authorize(Roles = "Admin")]
+        [HttpDelete("{id}")]
+        [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<bool>> DeleteShowtime(int showtimeId)
+        {
+            try
+            {
+                var result = await _showtimeService.DeleteShowtime(showtimeId);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogCritical(ex.Message, ex);
+                return NotFound(new ErrorModel(404, ex.Message));
+            }
+        }
+
 
     }
 }

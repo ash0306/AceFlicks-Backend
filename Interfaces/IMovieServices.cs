@@ -11,6 +11,6 @@ namespace MovieBookingBackend.Interfaces
         public Task<IEnumerable<MovieDTO>> GetAllMovies();
         public Task<IEnumerable<MovieDTO>> GetAllRunningMovies();
         public Task<IEnumerable<IGrouping<string, MovieDTO>>> GetRunningMoviesByLanguages();
-
+        public Task<bool> DeleteMovie(int id);
     }
 }

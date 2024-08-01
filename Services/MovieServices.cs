@@ -60,6 +60,32 @@ namespace MovieBookingBackend.Services
         }
 
         /// <summary>
+        /// Deletes a movie with the given id
+        /// </summary>
+        /// <param name="id">ID of the movie to be deleted</param>
+        /// <returns>True/False</returns>
+        /// <exception cref="NoSuchMovieException">THorwn if no movie with the given ID was found</exception>
+        public async Task<bool> DeleteMovie(int id)
+        {
+            try
+            {
+                var movie = await _repository.GetById(id);
+                if(movie == null)
+                {
+                    throw new NoSuchMovieException($"No movie with ID {id} found");
+                }
+
+                await _repository.Delete(id);
+                return true;
+            }
+            catch(Exception ex)
+            {
+                _logger.LogCritical("Unable to fetch movies" + ex.Message);
+                throw new NoSuchMovieException("Unable to fetch movie. " + ex.Message);
+            }
+        }
+
+        /// <summary>
         /// Gets a list of all movies
         /// </summary>
         /// <returns>List of all movies</returns>

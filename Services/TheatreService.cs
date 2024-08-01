@@ -71,6 +71,32 @@ namespace MovieBookingBackend.Services
         }
 
         /// <summary>
+        /// Deletes a theatre with the given id
+        /// </summary>
+        /// <param name="id">ID of the theatre to be deleted</param>
+        /// <returns>True/False</returns>
+        /// <exception cref="NoSuchTheatreException">Thrown if no theatre with the given ID was found</exception>
+        public async Task<bool> DeleteTheatre(int id)
+        {
+            try
+            {
+                var theatre = await _repository.GetById(id);
+                if (theatre == null)
+                {
+                    throw new NoSuchTheatreException($"No theatre with ID {id} found");
+                }
+
+                await _repository.Delete(id);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogCritical("Unable to fetch theatres" + ex.Message);
+                throw new NoSuchTheatreException("Unable to fetch theatre. " + ex.Message);
+            }
+        }
+
+        /// <summary>
         /// Gets all theatres.
         /// </summary>
         /// <returns>A list of theatre DTOs.</returns>
