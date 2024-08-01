@@ -7,6 +7,6 @@
         Task<T> Add(T item);
         Task<T> Update(T item);
         Task<T> Delete(K key);
-        Task<bool> DeleteRange(K key);
+        Task<bool> DeleteRange(IList<K> key);
     }
 }

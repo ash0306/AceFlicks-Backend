@@ -77,9 +77,14 @@ namespace MovieBookingBackend.Repositories
         /// <returns>Boolean result of the deletion operation</returns>
         /// <exception cref="NoBookingsFoundException">Thrown if no bookings match the ID</exception>
         /// <exception cref="UnableToDeleteBookingException">Thrown if the bookings cannot be deleted</exception>
-        public async Task<bool> DeleteRange(int key)
+        public async Task<bool> DeleteRange(IList<int> key)
         {
-            var bookings = (await GetAll()).ToList().Where(b => b.Id == key);
+            IList<Booking> bookings = new List<Booking>();
+            foreach (var id in key)
+            {
+                var result = await GetById(id);
+                bookings.Add(result);
+            }
             if (bookings.Count() <= 0)
             {
                 throw new NoBookingsFoundException("No bookings found for the given constraint");

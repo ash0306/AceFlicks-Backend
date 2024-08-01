@@ -109,6 +109,26 @@ namespace MovieBookingBackend.Services
         }
 
         /// <summary>
+        /// Deletes a range of showtimes
+        /// </summary>
+        /// <param name="id">IDs of the showtimes to be deleted</param>
+        /// <returns>True/False</returns>
+        /// <exception cref="NoSuchShowtimeException">Thrown if no showtime with the given ID was found</exception>
+        public async Task<bool> DeleteRangeShowtime(IList<int> ids)
+        {
+            try
+            {
+                await _repository.DeleteRange(ids);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogCritical("Unable to delete showtimes" + ex.Message);
+                throw new NoSuchShowtimeException("Unable to delete showtime. " + ex.Message);
+            }
+        }
+
+        /// <summary>
         /// Gets all active showtimes.
         /// </summary>
         /// <returns>A list of active showtime DTOs.</returns>

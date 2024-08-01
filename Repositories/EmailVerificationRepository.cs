@@ -77,14 +77,19 @@ namespace MovieBookingBackend.Repositories
         /// <returns>Boolean result of the deletion operation</returns>
         /// <exception cref="NoEmailVerificationsFoundException">Thrown if no email verifications match the ID</exception>
         /// <exception cref="UnableToDeleteEmailVerificationException">Thrown if the email verifications cannot be deleted</exception>
-        public async Task<bool> DeleteRange(int key)
+        public async Task<bool> DeleteRange(IList<int> key)
         {
-            var emailVerifications = (await GetAll()).ToList().Where(ev => ev.Id == key);
-            if (emailVerifications.Count() <= 0)
+            IList<EmailVerification> emails = new List<EmailVerification>();
+            foreach (var id in key)
+            {
+                var result = await GetById(id);
+                emails.Add(result);
+            }
+            if (emails.Count() <= 0)
             {
                 throw new NoEmailVerificationsFoundException("No email verifications found for the given constraint");
             }
-            _context.RemoveRange(emailVerifications);
+            _context.RemoveRange(emails);
             int noOfRowsAffected = await _context.SaveChangesAsync();
 
             if (noOfRowsAffected <= 0)

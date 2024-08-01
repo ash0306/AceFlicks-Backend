@@ -78,9 +78,14 @@ namespace MovieBookingBackend.Repositories
         /// <returns>Boolean result of the deletion operation</returns>
         /// <exception cref="NoShowtimesFoundException">Thrown if no showtimes match the ID</exception>
         /// <exception cref="UnableToDeleteShowtimeException">Thrown if the showtimes cannot be deleted</exception>
-        public async Task<bool> DeleteRange(int key)
+        public async Task<bool> DeleteRange(IList<int> key)
         {
-            var showtimes = (await GetAll()).ToList().Where(s => s.Id == key);
+            IList<Showtime> showtimes = new List<Showtime>();
+            foreach (var id in key)
+            {
+                var result = await GetById(id);
+                showtimes.Add(result);
+            }
             if (showtimes.Count() <= 0)
             {
                 throw new NoShowtimesFoundException("No showtimes found for the given constraint");

@@ -75,10 +75,15 @@ namespace MovieBookingBackend.Repositories
         /// <returns>Boolean result of tthe deletion operation</returns>
         /// <exception cref="NoUsersFoundException">THrown if no users match the ID</exception>
         /// <exception cref="UnableToDeleteUserException">Thrown if the user cannot be deleted</exception>
-        public async Task<bool> DeleteRange(int key)
+        public async Task<bool> DeleteRange(IList<int> key)
         {
-            var users = (await GetAll()).ToList().Where(u => u.Id == key);
-            if(users.Count() <= 0)
+            IList<User> users = new List<User>();
+            foreach (var id in key)
+            {
+                var result = await GetById(id);
+                users.Add(result);
+            }
+            if (users.Count() <= 0)
             {
                 throw new NoUsersFoundException("No users found for the given constraint");
             }

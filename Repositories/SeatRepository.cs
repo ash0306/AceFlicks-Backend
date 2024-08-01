@@ -77,9 +77,14 @@ namespace MovieBookingBackend.Repositories
         /// <returns>Boolean result of the deletion operation</returns>
         /// <exception cref="NoSeatsFoundException">Thrown if no seats match the ID</exception>
         /// <exception cref="UnableToDeleteSeatException">Thrown if the seats cannot be deleted</exception>
-        public async Task<bool> DeleteRange(int key)
+        public async Task<bool> DeleteRange(IList<int> key)
         {
-            var seats = (await GetAll()).ToList().Where(s => s.ShowetimeId == key);
+            IList<Seat> seats = new List<Seat>();
+            foreach (var id in key)
+            {
+                var result = await GetById(id);
+                seats.Add(result);
+            }
             if (seats.Count() <= 0)
             {
                 throw new NoSeatsFoundException("No seats found for the given constraint");

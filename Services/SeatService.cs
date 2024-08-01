@@ -5,6 +5,7 @@ using MovieBookingBackend.Models;
 using MovieBookingBackend.Models.DTOs.Seats;
 using MovieBookingBackend.Models.Enums;
 using MovieBookingBackend.Repositories;
+using System.Reflection.Metadata.Ecma335;
 
 namespace MovieBookingBackend.Services
 {
@@ -97,7 +98,12 @@ namespace MovieBookingBackend.Services
                 {
                     throw new NoSeatsFoundException($"No seats found for showtime ID {showtimeId}");
                 }
-                await _repository.DeleteRange(showtimeId);
+                IList<int> seatIds = new List<int>();
+                foreach (var seat in seats)
+                {
+                    seatIds.Add(seat.Id);
+                }
+                await _repository.DeleteRange(seatIds);
             }
             catch (Exception ex)
             {

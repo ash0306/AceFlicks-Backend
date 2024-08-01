@@ -77,14 +77,19 @@ namespace MovieBookingBackend.Repositories
         /// <returns>Boolean result of the delete operation</returns>
         /// <exception cref="NoSuchMovieException"></exception>
         /// <exception cref="UnableToDeleteMovieException"></exception>
-        public async Task<bool> DeleteRange(int key)
+        public async Task<bool> DeleteRange(IList<int> key)
         {
-            var movie = (await GetAll()).ToList().Where(m => m.Id == key);
-            if (movie == null)
+            IList<Movie> movies = new List<Movie>();
+            foreach (var id in key)
             {
-                throw new NoSuchMovieException($"No movie with ID {key} was found");
+                var result = await GetById(id);
+                movies.Add(result);
             }
-            _context.Remove(movie);
+            if (movies.Count() <= 0)
+            {
+                throw new NoMoviesFoundException($"No movies were found");
+            }
+            _context.RemoveRange(movies);
 
             int noOfRowsAffected = await _context.SaveChangesAsync();
             if (noOfRowsAffected <= 0)
