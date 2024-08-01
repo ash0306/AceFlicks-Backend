@@ -54,21 +54,6 @@ namespace MovieBookingBackend.Services
         {
             try
             {
-                var existingShowtime = (await _repository.GetAll())
-                    .Where(s => s.StartTime == addShowtimeDTO.StartTime
-                             && s.EndTime == addShowtimeDTO.EndTime
-                             && s.MovieId == addShowtimeDTO.MovieId
-                             && s.TheatreId == addShowtimeDTO.TheatreId
-                             && s.TotalSeats == addShowtimeDTO.TotalSeats
-                             && s.TicketPrice == addShowtimeDTO.TicketPrice)
-                    .FirstOrDefault();
-
-                if (existingShowtime != null)
-                {
-                    _logger.LogInformation("Showtime already exists.");
-                    throw new ShowtimeAlreadyExistsException($"Showtime already exists.");
-                }
-
                 var newShowtime = _mapper.Map<Showtime>(addShowtimeDTO);
 
                 if (addShowtimeDTO.StartTime < DateTime.Now)
@@ -132,8 +117,8 @@ namespace MovieBookingBackend.Services
         {
             try
             {
-                var results = await _repository.GetAll();
-                var upcomigShowtimes = results.Where(s => s.Status == ShowtimeStatus.Active);
+                var upcomigShowtimes = await _repository.GetAll();
+                //var upcomigShowtimes = results.Where(s => s.Status == ShowtimeStatus.Active);
                 IList<ShowtimeDTO> showtimes = new List<ShowtimeDTO>();
                 foreach (var item in upcomigShowtimes)
                 {

@@ -6,7 +6,6 @@ namespace MovieBookingBackend.Models.DTOs.Movies;
 
 public class MovieDTO
 {
-    [Required]
     public int Id { get; set; }
     [Required]
     public string Title { get; set; }

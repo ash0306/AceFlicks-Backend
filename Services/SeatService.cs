@@ -37,9 +37,11 @@ namespace MovieBookingBackend.Services
             try
             {
                 var seatsPerRow = 10;
-                var noOfRows = showtime.TotalSeats / seatsPerRow;
+                var totalSeats = showtime.TotalSeats;
+                var fullRows = totalSeats / seatsPerRow;
+                var remainingSeats = totalSeats % seatsPerRow;
 
-                for (int i = 0; i < noOfRows; i++)
+                for (int i = 0; i < fullRows; i++)
                 {
                     char row = (char)('A' + i);
                     for (int j = 1; j <= seatsPerRow; j++)
@@ -55,9 +57,27 @@ namespace MovieBookingBackend.Services
                         await _repository.Add(seat);
                     }
                 }
+
+                if (remainingSeats > 0)
+                {
+                    char row = (char)('A' + fullRows);
+                    for (int j = 1; j <= remainingSeats; j++)
+                    {
+                        Seat seat = new Seat()
+                        {
+                            Row = row.ToString(),
+                            SeatNumber = j,
+                            SeatStatus = SeatStatus.Available,
+                            IsAvailable = true,
+                            ShowetimeId = showtime.Id
+                        };
+                        await _repository.Add(seat);
+                    }
+                }
             }
             catch (Exception ex)
             {
+                _logger.LogCritical($"Unable to add seat. {ex.Message}");
                 throw new UnableToAddSeatException($"Unable to add seat. {ex.Message}");
             }
         }

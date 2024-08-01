@@ -42,7 +42,8 @@ namespace MovieBookingBackend.Repositories
             {
                 throw new UnableToAddShowtimeException($"Unable to add the showtime with ID: {item.Id}");
             }
-            return item;
+            var result = await GetById(item.Id);
+            return result;
         }
 
         /// <summary>
