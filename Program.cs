@@ -42,7 +42,7 @@ namespace MovieBookingBackend
                 options.AddPolicy("AllowSpecificOrigin",
                     builder =>
                     {
-                        builder.WithOrigins("https://localhost:3000", "https://192.168.1.7:3000")
+                        builder.WithOrigins("https://localhost:3000", "https://agreeable-pebble-00ac1631e.5.azurestaticapps.net", "https://192.168.1.7:3000")
                                .AllowAnyHeader()
                                .AllowAnyMethod()
                                .AllowCredentials();
