@@ -32,6 +32,10 @@ namespace MovieBookingBackend
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
 
+            var keyVaultName = "AceTicketsVault";
+            var kvUri = $"https://{keyVaultName}.vault.azure.net";
+            var client = new SecretClient(new Uri(kvUri), new DefaultAzureCredential());
+
             #region Cors
             builder.Services.AddCors(options =>
             {
@@ -75,6 +79,9 @@ namespace MovieBookingBackend
             });
             #endregion
 
+            const string JWT = "AceTicketsJwtKey";
+            var secretJwt = await client.GetSecretAsync(JWT);
+            var secretToken = secretJwt.Value.Value;
             #region Authentication
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
@@ -84,7 +91,7 @@ namespace MovieBookingBackend
                         ValidateIssuer = false,
                         ValidateAudience = false,
                         ValidateIssuerSigningKey = true,
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["TokenKey:JWT"]))
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretToken))
                     };
                     options.Events = new JwtBearerEvents
                     {
@@ -132,15 +139,11 @@ namespace MovieBookingBackend
 
             #region Contexts
             const string DBsecretName = "AceTicketsdbConnectionString";
-            var keyVaultName = "AceTicketsVault";
-            var kvUri = $"https://{keyVaultName}.vault.azure.net";
-            var client = new SecretClient(new Uri(kvUri), new DefaultAzureCredential());
             var secret = await client.GetSecretAsync(DBsecretName);
             var connectionString = secret.Value.Value;
 
             builder.Services.AddDbContext<MovieBookingContext>(
                 options => options.UseSqlServer(connectionString));
-
 
             #endregion
 
@@ -181,9 +184,9 @@ namespace MovieBookingBackend
             }
 
             app.UseHttpsRedirection();
-            app.UseCors("AllowSpecificOrigin");
             app.UseAuthentication();
             app.UseAuthorization();
+            app.UseCors("AllowSpecificOrigin");
             app.MapControllers();
 
             app.Run();
