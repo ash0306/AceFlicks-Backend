@@ -142,6 +142,7 @@ namespace MovieBookingBackend
             builder.Services.AddScoped<IRepository<int, Seat>, SeatRepository>();
             builder.Services.AddScoped<IRepository<int, Booking>, BookingRepository>();
             builder.Services.AddScoped<IEmailVerificationRepository, EmailVerificationRepository>();
+            builder.Services.AddScoped<IQRCodeRepository, QRCodeRepository>();
             #endregion
 
             #region Services
@@ -154,7 +155,7 @@ namespace MovieBookingBackend
             builder.Services.AddScoped<IBookingService, BookingService>();
             builder.Services.AddScoped<IEmailSender, EmailSenderService>();
             builder.Services.AddScoped<IEmailVerificationService, EmailVerificationService>();
-
+            builder.Services.AddScoped<IQRCodeService, QRCodeService>();
             builder.Services.AddScoped<ITokenService, TokenService>();
             #endregion
 

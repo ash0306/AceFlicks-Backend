@@ -19,6 +19,7 @@ namespace MovieBookingBackend.Services
         private readonly IMapper _mapper;
         private readonly ISeatService _seatService;
         private readonly IEmailVerificationService _emailVerificationService;
+        private readonly IQRCodeService _qRCodeService;
 
         /// <summary>
         /// Parameterized Constructor
@@ -29,7 +30,7 @@ namespace MovieBookingBackend.Services
         /// <param name="logger">Logger for BookingService</param>
         /// <param name="mapper">Mapper for DTOs</param>
         /// <param name="seatService">Service for Seat operations</param>
-        public BookingService(IRepository<int, Booking> repository, IEmailVerificationService emailVerificationService, IRepository<int, User> userRepository, IRepository<int, Showtime> showtimeRepository, ILogger<BookingService> logger, IMapper mapper, ISeatService seatService)
+        public BookingService(IRepository<int, Booking> repository, IQRCodeService qRCodeService, IEmailVerificationService emailVerificationService, IRepository<int, User> userRepository, IRepository<int, Showtime> showtimeRepository, ILogger<BookingService> logger, IMapper mapper, ISeatService seatService)
         {
             _repository = repository;
             _userRepository = userRepository;
@@ -38,6 +39,7 @@ namespace MovieBookingBackend.Services
             _mapper = mapper;
             _seatService = seatService;
             _emailVerificationService = emailVerificationService;
+            _qRCodeService = qRCodeService;
         }
 
         /// <summary>
@@ -60,9 +62,7 @@ namespace MovieBookingBackend.Services
                 showtime.AvailableSeats -= addBookingDTO.Seats.Count();
                 await _showtimeRepository.Update(showtime);
 
-
                 Booking booking = await AddBookingDTOtoBooking(addBookingDTO);
-
                 booking.Status = BookingStatus.Booked;
 
                 var newBooking = await _repository.Add(booking);
@@ -89,7 +89,9 @@ namespace MovieBookingBackend.Services
                 bookingDTO.ShowtimeDetails = GetShowtimeDetails(newBooking.Showtime);
                 bookingDTO.Seats = GetSeatNumbers(newBooking.Seats);
 
-                await _emailVerificationService.SendBookingConfirmationEmail(bookingDTO.UserId, bookingDTO);
+                byte[] bookingQR = await _qRCodeService.CreateQRCode(bookingDTO);
+                await _emailVerificationService.SendBookingConfirmationEmail(bookingDTO.UserId, bookingDTO, bookingQR);
+                
                 if (bookingsThisWeek >= 3)
                 {
                     string offerCode = GenerateOfferCode();

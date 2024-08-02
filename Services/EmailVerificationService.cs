@@ -18,6 +18,7 @@ namespace MovieBookingBackend.Services
         private readonly IRepository<int, User> _userRepository;
         private readonly ILogger<EmailVerificationService> _logger;
         private readonly IShowtimeService _showtimeService;
+        private readonly IQRCodeService _qrCodeService;
 
         /// <summary>
         /// Parameterized Constructor
@@ -28,7 +29,7 @@ namespace MovieBookingBackend.Services
         /// <param name="emailService">Service for sending emails</param>
         /// <param name="userRepository">Repository for User</param>
         /// <param name="logger">Logger for EmailVerificationService</param>
-        public EmailVerificationService(IEmailVerificationRepository emailVerificationRepository, IShowtimeService showtimeService , IMapper mapper, IConfiguration configuration, IEmailSender emailService, IRepository<int, User> userRepository, ILogger<EmailVerificationService> logger)
+        public EmailVerificationService(IEmailVerificationRepository emailVerificationRepository, IQRCodeService qRCodeService, IShowtimeService showtimeService , IMapper mapper, IConfiguration configuration, IEmailSender emailService, IRepository<int, User> userRepository, ILogger<EmailVerificationService> logger)
         {
             _emailVerificationRepository = emailVerificationRepository;
             _mapper = mapper;
@@ -37,6 +38,7 @@ namespace MovieBookingBackend.Services
             _userRepository = userRepository;
             _logger = logger;
             _showtimeService = showtimeService;
+            _qrCodeService = qRCodeService;
         }
 
         /// <summary>
@@ -299,70 +301,77 @@ namespace MovieBookingBackend.Services
         /// <param name="userId">User ID of the person who made the booking</param>
         /// <param name="bookingId">Booking ID for which the confirmation is sent</param>
         /// <exception cref="Exception">Thrown when there is an error sending the booking confirmation email</exception>
-        public async Task SendBookingConfirmationEmail(int userId, BookingDTO bookingDTO)
+        public async Task SendBookingConfirmationEmail(int userId, BookingDTO bookingDTO, byte[] bookingQR)
         {
             try
             {
                 var user = await _userRepository.GetById(userId);
                 var showtimeDetails = (await _showtimeService.GetAllShowtime()).FirstOrDefault(s => s.Id == bookingDTO.ShowtimeId);
 
+                if (user == null || showtimeDetails == null)
+                {
+                    throw new Exception("User or Showtime not found.");
+                }
+
+                string emailBody = $@"
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset='UTF-8'>
+            <title>AceTickets Booking Confirmation</title>
+            <style>
+                body {{ font-family: Arial, sans-serif; background-color: #f4f4f4; color: #333; margin: 0; padding: 0; }}
+                .container {{ max-width: 600px; margin: 50px auto; background-color: #fff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); overflow: hidden; }}
+                .header {{ background-color: #FF5733; color: white; padding: 20px; text-align: center; }}
+                .content {{ padding: 30px; }}
+                .footer {{ padding: 20px; font-size: 12px; color: #777; text-align: center; background-color: #f9f9f9; }}
+                .booking-details {{ font-size: 18px; margin: 20px 0; }}
+            </style>
+        </head>
+        <body>
+            <div class='container'>
+                <div class='header'>
+                    <h1>AceTickets Booking Confirmation</h1>
+                </div>
+                <div class='content'>
+                    <p>Hello {user.Name},</p>
+                    <p>Thank you for your booking! Here are your booking details:</p>
+                    <div class='booking-details'>
+                        <p><strong>Booking ID:</strong> {bookingDTO.Id}</p>
+                        <p><strong>Movie:</strong> {showtimeDetails.Movie}</p>
+                        <p><strong>Theatre:</strong> {showtimeDetails.Theatre} - {showtimeDetails.TheatreLocation}</p>
+                        <p><strong>Showtime:</strong> {showtimeDetails.StartTime} to {showtimeDetails.EndTime}</p>
+                        <p><strong>Seats:</strong> {string.Join(", ", bookingDTO.Seats)}</p>
+                    </div>
+                    <p>Enjoy your movie! If you have any questions, feel free to contact us.</p>
+                </div>
+                <div class='footer'>
+                    <p>Thanks for choosing AceTickets!</p>
+                    <p class='social-links'>
+                        Follow us: 
+                        <a href='https://twitter.com/acetickets'>Twitter</a> | 
+                        <a href='https://facebook.com/acetickets'>Facebook</a> | 
+                        <a href='https://instagram.com/acetickets'>Instagram</a>
+                    </p>
+                    <p>© 2024 AceTickets, All Rights Reserved</p>
+                    <p>123 East Street, MarineFord, Chennai, India</p>
+                </div>
+            </div>
+        </body>
+        </html>";
+
                 await _emailService.SendEmailAsync(user.Email,
                     $"AceTickets - Booking Confirmation #{bookingDTO.Id}",
-                    $@"
-                <!DOCTYPE html>
-                <html>
-                <head>
-                    <meta charset='UTF-8'>
-                    <title>AceTickets Booking Confirmation</title>
-                    <style>
-                        body {{ font-family: Arial, sans-serif; background-color: #f4f4f4; color: #333; margin: 0; padding: 0; }}
-                        .container {{ max-width: 600px; margin: 50px auto; background-color: #fff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); overflow: hidden; }}
-                        .header {{ background-color: #FF5733; color: white; padding: 20px; text-align: center; }}
-                        .content {{ padding: 30px; }}
-                        .footer {{ padding: 20px; font-size: 12px; color: #777; text-align: center; background-color: #f9f9f9; }}
-                        .booking-details {{ font-size: 18px; margin: 20px 0; }}
-                    </style>
-                </head>
-                <body>
-                    <div class='container'>
-                        <div class='header'>
-                            <h1>AceTickets Booking Confirmation</h1>
-                        </div>
-                        <div class='content'>
-                            <p>Hello {user.Name},</p>
-                            <p>Thank you for your booking! Here are your booking details:</p>
-                            <div class='booking-details'>
-                                <p><strong>Booking ID:</strong> {bookingDTO.Id}</p>
-                                <p><strong>Movie:</strong> {showtimeDetails.Movie}</p>
-                                <p><strong>Theatre:</strong> {showtimeDetails.Theatre} - {showtimeDetails.TheatreLocation}</p>
-                                <p><strong>Showtime:</strong> {showtimeDetails.StartTime} to {showtimeDetails.EndTime}</p>
-                                <p><strong>Seats:</strong> {string.Join(", ", bookingDTO.Seats)}</p>
-                            </div>
-                            <p>Enjoy your movie! If you have any questions, feel free to contact us.</p>
-                        </div>
-                        <div class='footer'>
-                            <p>Thanks for choosing AceTickets!</p>
-                            <p class='social-links'>
-                                Follow us: 
-                                <a href='https://twitter.com/acetickets'>Twitter</a> | 
-                                <a href='https://facebook.com/acetickets'>Facebook</a> | 
-                                <a href='https://instagram.com/acetickets'>Instagram</a>
-                            </p>
-                            <p>© 2024 AceTickets, All Rights Reserved</p>
-                            <p>123 East Street, MarineFord, Chennai, India</p>
-                        </div>
-                    </div>
-                </body>
-                </html>"
-                    );
+                    emailBody,
+                    bookingQR,
+                    "BookingQRCode.png");
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex.Message);
+                _logger.LogError(ex, "Error sending booking confirmation email");
                 throw;
             }
         }
-
 
     }
 }

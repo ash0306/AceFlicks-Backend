@@ -17,6 +17,7 @@ namespace MovieBookingBackend.Contexts
         public DbSet<Seat> Seats { get; set; }
         public DbSet<Booking> Bookings { get; set; }
         public DbSet<EmailVerification> EmailVerifications { get; set; }
+        public DbSet<QRCode> QRCodes { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -37,6 +38,11 @@ namespace MovieBookingBackend.Contexts
                     Status = UserStatus.Active,
                 }
                 );
+
+            modelBuilder.Entity<Booking>()
+                .HasOne(b => b.QRCode)
+                .WithOne(qr => qr.Booking)
+                .HasForeignKey<QRCode>(qr => qr.BookingId);
 
             modelBuilder.Entity<User>()
                 .HasMany(e => e.Bookings)

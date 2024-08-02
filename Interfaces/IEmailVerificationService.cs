@@ -7,6 +7,6 @@ namespace MovieBookingBackend.Interfaces
         Task CreateEmailVerification(int userId);
         Task<bool> VerifyEmail(int userId, string verificationCode);
         Task SendOfferCodeEmail(int userId, string offerCode);
-        Task SendBookingConfirmationEmail(int userId, BookingDTO bookingDTO);
+        Task SendBookingConfirmationEmail(int userId, BookingDTO bookingDTO, byte[] bookingQR);
     }
 }

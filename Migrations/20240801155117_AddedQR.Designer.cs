@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MovieBookingBackend.Contexts;
 
@@ -11,9 +12,10 @@ using MovieBookingBackend.Contexts;
 namespace MovieBookingBackend.Migrations
 {
     [DbContext(typeof(MovieBookingContext))]
-    partial class MovieBookingContextModelSnapshot : ModelSnapshot
+    [Migration("20240801155117_AddedQR")]
+    partial class AddedQR
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -150,7 +152,7 @@ namespace MovieBookingBackend.Migrations
                     b.HasIndex("BookingId")
                         .IsUnique();
 
-                    b.ToTable("QRCodes");
+                    b.ToTable("QRCode");
                 });
 
             modelBuilder.Entity("MovieBookingBackend.Models.Seat", b =>
@@ -298,8 +300,8 @@ namespace MovieBookingBackend.Migrations
                             Id = 101,
                             Email = "andrew@gmail.com",
                             Name = "Andrew",
-                            PasswordHash = new byte[] { 24, 225, 184, 105, 150, 77, 98, 220, 218, 247, 41, 225, 111, 143, 136, 231, 46, 19, 134, 24, 175, 55, 26, 135, 80, 213, 70, 135, 77, 112, 139, 97, 215, 242, 80, 155, 67, 165, 245, 177, 67, 116, 109, 223, 156, 204, 12, 37, 124, 182, 35, 146, 151, 221, 88, 196, 6, 51, 48, 238, 62, 185, 62, 50 },
-                            PasswordHashKey = new byte[] { 126, 48, 210, 231, 52, 171, 145, 160, 184, 159, 21, 111, 214, 198, 32, 197, 227, 73, 241, 105, 74, 124, 124, 240, 202, 60, 79, 234, 29, 93, 83, 149, 233, 149, 20, 55, 215, 241, 230, 4, 95, 157, 211, 133, 26, 128, 181, 102, 116, 164, 231, 22, 88, 127, 129, 142, 108, 3, 254, 131, 83, 191, 184, 67, 255, 123, 10, 162, 82, 238, 251, 224, 45, 178, 97, 166, 109, 240, 221, 228, 156, 85, 133, 198, 252, 94, 121, 217, 220, 26, 53, 120, 194, 211, 218, 251, 246, 156, 179, 169, 64, 38, 50, 140, 103, 166, 59, 197, 130, 206, 134, 244, 17, 84, 200, 93, 208, 159, 18, 108, 237, 83, 238, 128, 15, 37, 161, 113 },
+                            PasswordHash = new byte[] { 209, 90, 88, 211, 138, 184, 250, 181, 184, 120, 200, 216, 249, 54, 45, 139, 149, 95, 51, 54, 148, 95, 207, 0, 121, 19, 229, 204, 116, 143, 61, 43, 79, 16, 236, 219, 210, 146, 170, 15, 253, 174, 187, 42, 146, 48, 138, 114, 193, 136, 91, 236, 41, 140, 216, 247, 117, 65, 48, 204, 188, 102, 6, 134 },
+                            PasswordHashKey = new byte[] { 139, 197, 114, 138, 46, 115, 86, 30, 51, 1, 69, 65, 163, 182, 22, 165, 198, 69, 252, 85, 24, 57, 138, 242, 17, 177, 238, 151, 22, 34, 211, 85, 186, 250, 119, 222, 14, 70, 223, 170, 119, 23, 249, 69, 111, 159, 167, 213, 179, 56, 11, 82, 51, 49, 170, 181, 20, 239, 23, 139, 50, 66, 44, 47, 147, 250, 187, 87, 235, 176, 181, 72, 42, 73, 45, 47, 52, 84, 254, 35, 58, 223, 67, 112, 47, 91, 242, 33, 151, 22, 206, 176, 241, 180, 110, 249, 28, 41, 113, 61, 165, 220, 182, 3, 184, 141, 151, 23, 185, 1, 37, 80, 213, 77, 241, 100, 69, 123, 7, 176, 192, 2, 126, 189, 158, 104, 66, 143 },
                             Phone = "9333555908",
                             Role = 0,
                             Status = 1
