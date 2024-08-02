@@ -148,5 +148,25 @@ namespace MovieBookingBackend.Controllers
             }
         }
 
+
+        [Authorize(Roles = "User")]
+        [HttpPost("resend-email/{id}")]
+        [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<bool>> ResendBookingEmail(int bookingId)
+        {
+            try
+            {
+                var result = await _bookingService.ResendBookingEmail(bookingId);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogCritical(ex.Message, ex);
+                return NotFound(new ErrorModel(404, ex.Message));
+            }
+        }
+
+
     }
 }
