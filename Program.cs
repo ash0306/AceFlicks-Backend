@@ -106,19 +106,19 @@ namespace MovieBookingBackend
             builder.Services.AddSingleton<MovieStatusUpdateJob>();
             builder.Services.AddSingleton(new JobSchedule(
                 jobType: typeof(MovieStatusUpdateJob),
-                cronExpression: "0 1 * * * ?" //everyday at 1 am
+                cronExpression: "0 0 1 * * ?" //everyday at 1 am
                 ));
 
             builder.Services.AddSingleton<UpdateShowtimeStatusJob>();
             builder.Services.AddSingleton(new JobSchedule(
                 jobType: typeof(UpdateShowtimeStatusJob),
-                cronExpression: "0 */2 * * * ?" //every 2 hours
+                cronExpression: "0 0 */2 * * ?" //every 2 hours
                 ));
 
             builder.Services.AddSingleton<UpdateSeatStatusJob>();
             builder.Services.AddSingleton(new JobSchedule(
                 jobType: typeof(UpdateSeatStatusJob),
-                cronExpression: "*/15 * * * * ?" //every 15 mins
+                cronExpression: "0 */15 * * * ?" //every 15 mins
                 ));
 
             builder.Services.AddHostedService<QuartzHostedService>();
