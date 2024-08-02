@@ -1,0 +1,51 @@
+# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
+# More GitHub Actions for Azure: https://github.com/Azure/actions
+
+name: Build and deploy container app to Azure Web App - acetickets
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: 'ubuntu-latest'
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+
+    - name: Log in to registry
+      uses: docker/login-action@v2
+      with:
+        registry: https://acetickets.azurecr.io/
+        username: ${{ secrets.AzureAppService_ContainerUsername_455e0094555f421aade28bcc613ec635 }}
+        password: ${{ secrets.AzureAppService_ContainerPassword_2328fdec27d34fa48404f98d461925b2 }}
+
+    - name: Build and push container image to registry
+      uses: docker/build-push-action@v3
+      with:
+        push: true
+        tags: acetickets.azurecr.io/${{ secrets.AzureAppService_ContainerUsername_455e0094555f421aade28bcc613ec635 }}/acetickets-backend:${{ github.sha }}
+        file: ./Dockerfile
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    environment:
+      name: 'production'
+      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
+
+    steps:
+    - name: Deploy to Azure Web App
+      id: deploy-to-webapp
+      uses: azure/webapps-deploy@v2
+      with:
+        app-name: 'acetickets'
+        slot-name: 'production'
+        publish-profile: ${{ secrets.AzureAppService_PublishProfile_7292d2087ede4201860f2cc593e9f45a }}
+        images: 'acetickets.azurecr.io/${{ secrets.AzureAppService_ContainerUsername_455e0094555f421aade28bcc613ec635 }}/acetickets-backend:${{ github.sha }}'
