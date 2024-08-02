@@ -436,6 +436,23 @@ namespace MovieBookingBackend.Services
                 throw new UnableToUpdateSeatException("Unable to update seat. " + ex.Message);
             }
         }
+
+        public async Task<bool> ResendBookingEmail(int bookingId)
+        {
+            var booking = await _repository.GetById(bookingId);
+            if (booking == null)
+            {
+                _logger.LogCritical($"No booking found for ID {bookingId}");
+                throw new NoSuchBookingException($"No booking found for ID {bookingId}");
+            }
+            var qrCode = await _qRCodeService.GetQRCodeByBookingId(bookingId);
+
+            BookingDTO bookingDTO = _mapper.Map<BookingDTO>(booking);
+            bookingDTO.ShowtimeDetails = GetShowtimeDetails(booking.Showtime);
+            bookingDTO.Seats = GetSeatNumbers(booking.Seats);
+            await _emailVerificationService.SendBookingConfirmationEmail(bookingDTO.UserId, bookingDTO, qrCode);
+            return true;
+        }
     }
 
     /// <summary>

@@ -150,7 +150,7 @@ namespace MovieBookingBackend.Controllers
 
 
         [Authorize(Roles = "User")]
-        [HttpPost("resend-email/{id}")]
+        [HttpPost("resend-email")]
         [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status404NotFound)]
         public async Task<ActionResult<bool>> ResendBookingEmail(int bookingId)

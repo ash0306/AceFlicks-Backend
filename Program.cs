@@ -118,7 +118,7 @@ namespace MovieBookingBackend
             builder.Services.AddSingleton<UpdateSeatStatusJob>();
             builder.Services.AddSingleton(new JobSchedule(
                 jobType: typeof(UpdateSeatStatusJob),
-                cronExpression: "0 */2 * * * ?" //every 2 hours
+                cronExpression: "*/15 * * * * ?" //every 15 mins
                 ));
 
             builder.Services.AddHostedService<QuartzHostedService>();
