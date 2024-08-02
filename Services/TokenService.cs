@@ -1,5 +1,6 @@
 ﻿using Azure.Identity;
 using Azure.Security.KeyVault.Secrets;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.IdentityModel.Tokens;
 using MovieBookingBackend.Interfaces;
 using MovieBookingBackend.Models;
@@ -14,18 +15,19 @@ namespace MovieBookingBackend.Services
         public async Task<SymmetricSecurityKey> GenerateTokenKey()
         {
             string _secretKey = await GetSecretAsync();
+            Console.WriteLine(_secretKey);
             SymmetricSecurityKey _key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_secretKey));
             return _key;
         }
 
         public async Task<string> GetSecretAsync()
         {
-            const string DBsecretName = "AceTicketsdbConnectionString";
+            const string DBsecretName = "AceTicketsJwtKey";
             var keyVaultName = "AceTicketsVault";
             var kvUri = $"https://{keyVaultName}.vault.azure.net";
             var client = new SecretClient(new Uri(kvUri), new DefaultAzureCredential());
             var secret = await client.GetSecretAsync(DBsecretName);
-
+            Console.WriteLine(secret);
             return secret.Value.Value;
         }
 
