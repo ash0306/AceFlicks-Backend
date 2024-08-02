@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace MovieBookingBackend.Migrations
 {
-    public partial class InitialMigration : Migration
+    public partial class AzureInit : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -15,12 +15,15 @@ namespace MovieBookingBackend.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Title = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Synopsis = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Genre = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Language = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Duration = table.Column<int>(type: "int", nullable: false),
                     StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    EndDate = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    EndDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -48,8 +51,9 @@ namespace MovieBookingBackend.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Email = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Phone = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false),
                     PasswordHash = table.Column<byte[]>(type: "varbinary(max)", nullable: false),
                     PasswordHashKey = table.Column<byte[]>(type: "varbinary(max)", nullable: false),
                     Role = table.Column<int>(type: "int", nullable: false)
@@ -67,9 +71,11 @@ namespace MovieBookingBackend.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     StartTime = table.Column<DateTime>(type: "datetime2", nullable: false),
                     EndTime = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false),
                     MovieId = table.Column<int>(type: "int", nullable: false),
                     TheatreId = table.Column<int>(type: "int", nullable: false),
                     TotalSeats = table.Column<int>(type: "int", nullable: false),
+                    AvailableSeats = table.Column<int>(type: "int", nullable: false),
                     TicketPrice = table.Column<float>(type: "real", nullable: false)
                 },
                 constraints: table =>
@@ -90,6 +96,27 @@ namespace MovieBookingBackend.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "EmailVerifications",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    UserId = table.Column<int>(type: "int", nullable: false),
+                    VerificationCode = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ExpiryDate = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_EmailVerifications", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_EmailVerifications_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Bookings",
                 columns: table => new
                 {
@@ -98,7 +125,9 @@ namespace MovieBookingBackend.Migrations
                     UserId = table.Column<int>(type: "int", nullable: false),
                     ShowtimeId = table.Column<int>(type: "int", nullable: false),
                     BookingTime = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    TotalPrice = table.Column<float>(type: "real", nullable: false)
+                    TotalPrice = table.Column<float>(type: "real", nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false),
+                    QRId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -118,6 +147,26 @@ namespace MovieBookingBackend.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "QRCodes",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    BookingId = table.Column<int>(type: "int", nullable: false),
+                    BookingQR = table.Column<byte[]>(type: "varbinary(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_QRCodes", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_QRCodes_Bookings_BookingId",
+                        column: x => x.BookingId,
+                        principalTable: "Bookings",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Seats",
                 columns: table => new
                 {
@@ -125,6 +174,7 @@ namespace MovieBookingBackend.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Row = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     SeatNumber = table.Column<int>(type: "int", nullable: false),
+                    SeatStatus = table.Column<int>(type: "int", nullable: false),
                     IsAvailable = table.Column<bool>(type: "bit", nullable: false),
                     ShowetimeId = table.Column<int>(type: "int", nullable: false),
                     BookingId = table.Column<int>(type: "int", nullable: true)
@@ -147,8 +197,8 @@ namespace MovieBookingBackend.Migrations
 
             migrationBuilder.InsertData(
                 table: "Users",
-                columns: new[] { "Id", "Email", "Name", "PasswordHash", "PasswordHashKey", "Phone", "Role" },
-                values: new object[] { 101, "andrew@gmail.com", "Andrew", new byte[] { 182, 61, 0, 125, 1, 237, 233, 25, 12, 40, 109, 24, 110, 233, 237, 26, 215, 83, 149, 154, 95, 1, 101, 135, 116, 176, 104, 27, 23, 111, 145, 51, 250, 196, 122, 167, 20, 90, 221, 239, 124, 196, 247, 163, 214, 177, 79, 122, 196, 27, 216, 143, 107, 72, 64, 47, 128, 152, 124, 124, 202, 103, 213, 42 }, new byte[] { 173, 136, 73, 163, 225, 52, 227, 212, 38, 172, 170, 37, 150, 135, 252, 14, 150, 151, 157, 70, 60, 141, 3, 63, 111, 230, 243, 17, 202, 243, 224, 224, 95, 223, 57, 201, 150, 253, 6, 233, 187, 181, 188, 48, 150, 36, 220, 12, 147, 74, 205, 183, 235, 40, 223, 77, 221, 124, 167, 62, 210, 140, 239, 212, 142, 99, 102, 69, 5, 27, 54, 119, 188, 78, 234, 211, 121, 56, 148, 51, 1, 224, 146, 147, 37, 19, 136, 18, 130, 155, 16, 44, 193, 160, 212, 25, 117, 164, 217, 145, 184, 126, 153, 124, 152, 8, 184, 224, 232, 123, 134, 112, 229, 50, 27, 64, 224, 227, 198, 242, 125, 28, 142, 63, 3, 29, 156, 134 }, "9333555908", 0 });
+                columns: new[] { "Id", "Email", "Name", "PasswordHash", "PasswordHashKey", "Phone", "Role", "Status" },
+                values: new object[] { 101, "andrew@gmail.com", "Andrew", new byte[] { 49, 79, 240, 219, 165, 172, 152, 8, 108, 226, 206, 87, 81, 69, 232, 95, 205, 67, 176, 237, 54, 41, 153, 249, 111, 7, 117, 215, 241, 200, 13, 191, 162, 118, 32, 204, 3, 53, 183, 188, 89, 170, 123, 78, 141, 80, 37, 200, 245, 156, 138, 189, 210, 176, 168, 61, 38, 177, 85, 104, 135, 185, 228, 116 }, new byte[] { 55, 161, 193, 120, 63, 25, 186, 227, 208, 129, 225, 180, 195, 16, 253, 114, 127, 242, 243, 142, 155, 22, 127, 119, 232, 105, 224, 51, 20, 161, 101, 3, 211, 39, 27, 186, 13, 45, 95, 233, 35, 79, 184, 55, 87, 140, 125, 211, 141, 113, 32, 22, 18, 200, 199, 69, 196, 134, 87, 132, 181, 210, 25, 125, 162, 146, 6, 25, 146, 183, 165, 63, 77, 43, 239, 78, 222, 74, 215, 151, 8, 165, 176, 96, 128, 142, 216, 236, 148, 33, 66, 62, 251, 123, 157, 32, 123, 243, 160, 15, 161, 68, 178, 149, 245, 8, 75, 247, 202, 103, 238, 173, 64, 61, 169, 61, 222, 6, 170, 102, 65, 126, 120, 85, 97, 194, 34, 161 }, "9333555908", 0, 1 });
 
             migrationBuilder.CreateIndex(
                 name: "IX_Bookings_ShowtimeId",
@@ -159,6 +209,23 @@ namespace MovieBookingBackend.Migrations
                 name: "IX_Bookings_UserId",
                 table: "Bookings",
                 column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_EmailVerifications_UserId",
+                table: "EmailVerifications",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Movies_Title",
+                table: "Movies",
+                column: "Title",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_QRCodes_BookingId",
+                table: "QRCodes",
+                column: "BookingId",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Seats_BookingId",
@@ -179,10 +246,22 @@ namespace MovieBookingBackend.Migrations
                 name: "IX_Showtimes_TheatreId",
                 table: "Showtimes",
                 column: "TheatreId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Users_Email",
+                table: "Users",
+                column: "Email",
+                unique: true);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "EmailVerifications");
+
+            migrationBuilder.DropTable(
+                name: "QRCodes");
+
             migrationBuilder.DropTable(
                 name: "Seats");
 

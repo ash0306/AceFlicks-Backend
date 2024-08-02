@@ -69,7 +69,7 @@ namespace MovieBookingBackend.Services
                     {
                         Email = userLoginDTO.Email,
                         Role = user.Role.ToString(),
-                        Token = _tokenService.GetUserToken(user)
+                        Token = await _tokenService.GetUserToken(user)
                     };
                     return returnDTO;
                 }

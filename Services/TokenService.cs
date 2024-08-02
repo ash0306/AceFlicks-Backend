@@ -1,4 +1,6 @@
-﻿using Microsoft.IdentityModel.Tokens;
+﻿using Azure.Identity;
+using Azure.Security.KeyVault.Secrets;
+using Microsoft.IdentityModel.Tokens;
 using MovieBookingBackend.Interfaces;
 using MovieBookingBackend.Models;
 using System.IdentityModel.Tokens.Jwt;
@@ -9,17 +11,22 @@ namespace MovieBookingBackend.Services
 {
     public class TokenService : ITokenService
     {
-        private readonly string _secretKey;
-        private readonly SymmetricSecurityKey _key;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="TokenService"/> class.
-        /// </summary>
-        /// <param name="configuration">The configuration instance used to retrieve the secret key.</param>
-        public TokenService(IConfiguration configuration)
+        public async Task<SymmetricSecurityKey> GenerateTokenKey()
         {
-            _secretKey = configuration.GetSection("TokenKey").GetSection("JWT").Value.ToString();
-            _key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_secretKey));
+            string _secretKey = await GetSecretAsync();
+            SymmetricSecurityKey _key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_secretKey));
+            return _key;
+        }
+
+        public async Task<string> GetSecretAsync()
+        {
+            const string DBsecretName = "AceTicketsdbConnectionString";
+            var keyVaultName = "AceTicketsVault";
+            var kvUri = $"https://{keyVaultName}.vault.azure.net";
+            var client = new SecretClient(new Uri(kvUri), new DefaultAzureCredential());
+            var secret = await client.GetSecretAsync(DBsecretName);
+
+            return secret.Value.Value;
         }
 
         /// <summary>
@@ -27,7 +34,7 @@ namespace MovieBookingBackend.Services
         /// </summary>
         /// <param name="user">The user for whom the token is generated.</param>
         /// <returns>A JWT token as a string.</returns>
-        public string GetUserToken(User user)
+        public async Task<string> GetUserToken(User user)
         {
             string token = string.Empty;
             var claims = new List<Claim>(){
@@ -36,6 +43,7 @@ namespace MovieBookingBackend.Services
                 new Claim(ClaimTypes.Email, user.Email),
                 new Claim(ClaimTypes.Role, user.Role.ToString())
             };
+            var _key = await GenerateTokenKey();
             var credentials = new SigningCredentials(_key, SecurityAlgorithms.HmacSha256);
             var myToken = new JwtSecurityToken(null, null, claims, expires: DateTime.Now.AddDays(2), signingCredentials: credentials);
             token = new JwtSecurityTokenHandler().WriteToken(myToken);

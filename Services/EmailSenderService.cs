@@ -2,6 +2,9 @@
 using System.Net;
 using MovieBookingBackend.Interfaces;
 using MovieBookingBackend.Exceptions.Email;
+using Azure.Identity;
+using Azure.Security.KeyVault.Secrets;
+using System;
 
 namespace MovieBookingBackend.Services
 {
@@ -25,9 +28,13 @@ namespace MovieBookingBackend.Services
         /// <returns>A task representing the asynchronous operation.</returns>
         public async Task SendEmailAsync(string email, string subject, string message, byte[] attachment = null, string attachmentName = null)
         {
-            var emailSettings = _configuration.GetSection("Email");
-            var useremail = emailSettings["mail"];
-            var password = emailSettings["password"];
+            var keyVaultName = "AceTicketsVault";
+            var kvUri = $"https://{keyVaultName}.vault.azure.net";
+            var keyvaultclient = new SecretClient(new Uri(kvUri), new DefaultAzureCredential());
+            var secretEmail = await keyvaultclient.GetSecretAsync("AceTicketsEmail");
+            var useremail = secretEmail.Value.Value;
+            var secretPassword = await keyvaultclient.GetSecretAsync("AceTicketsSMTPPassword");
+            var password = secretPassword.Value.Value;
 
             var client = new SmtpClient("smtp.gmail.com")
             {

@@ -12,8 +12,8 @@ using MovieBookingBackend.Contexts;
 namespace MovieBookingBackend.Migrations
 {
     [DbContext(typeof(MovieBookingContext))]
-    [Migration("20240726110340_UpdatedShowtime_v2")]
-    partial class UpdatedShowtime_v2
+    [Migration("20240802093904_AzureInit")]
+    partial class AzureInit
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -35,6 +35,9 @@ namespace MovieBookingBackend.Migrations
                     b.Property<DateTime>("BookingTime")
                         .HasColumnType("datetime2");
 
+                    b.Property<int>("QRId")
+                        .HasColumnType("int");
+
                     b.Property<int>("ShowtimeId")
                         .HasColumnType("int");
 
@@ -54,6 +57,31 @@ namespace MovieBookingBackend.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Bookings");
+                });
+
+            modelBuilder.Entity("MovieBookingBackend.Models.EmailVerification", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<DateTime>("ExpiryDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("VerificationCode")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("EmailVerifications");
                 });
 
             modelBuilder.Entity("MovieBookingBackend.Models.Movie", b =>
@@ -102,6 +130,29 @@ namespace MovieBookingBackend.Migrations
                         .IsUnique();
 
                     b.ToTable("Movies");
+                });
+
+            modelBuilder.Entity("MovieBookingBackend.Models.QRCode", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<int>("BookingId")
+                        .HasColumnType("int");
+
+                    b.Property<byte[]>("BookingQR")
+                        .IsRequired()
+                        .HasColumnType("varbinary(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BookingId")
+                        .IsUnique();
+
+                    b.ToTable("QRCodes");
                 });
 
             modelBuilder.Entity("MovieBookingBackend.Models.Seat", b =>
@@ -233,6 +284,9 @@ namespace MovieBookingBackend.Migrations
                     b.Property<int>("Role")
                         .HasColumnType("int");
 
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.HasIndex("Email")
@@ -246,10 +300,11 @@ namespace MovieBookingBackend.Migrations
                             Id = 101,
                             Email = "andrew@gmail.com",
                             Name = "Andrew",
-                            PasswordHash = new byte[] { 248, 22, 17, 28, 23, 168, 250, 197, 206, 1, 132, 39, 156, 225, 103, 48, 217, 17, 209, 24, 3, 30, 175, 8, 238, 217, 43, 11, 188, 120, 244, 134, 106, 77, 152, 177, 160, 65, 91, 222, 56, 126, 33, 185, 93, 43, 61, 69, 20, 193, 119, 89, 110, 148, 229, 159, 248, 174, 250, 164, 194, 102, 173, 44 },
-                            PasswordHashKey = new byte[] { 217, 142, 50, 126, 253, 200, 168, 116, 121, 163, 244, 231, 205, 78, 122, 27, 133, 244, 105, 55, 59, 216, 226, 64, 140, 141, 239, 32, 30, 117, 114, 213, 192, 224, 190, 0, 126, 140, 115, 245, 211, 188, 173, 121, 125, 179, 157, 26, 93, 104, 188, 235, 64, 190, 180, 148, 3, 143, 27, 160, 195, 19, 40, 195, 115, 26, 33, 220, 25, 221, 205, 251, 135, 177, 224, 25, 213, 90, 163, 130, 42, 190, 135, 157, 65, 30, 226, 138, 122, 86, 125, 39, 188, 145, 133, 139, 133, 0, 229, 66, 83, 10, 72, 136, 232, 196, 13, 73, 177, 39, 80, 36, 31, 109, 56, 195, 204, 252, 58, 23, 186, 177, 110, 91, 171, 72, 52, 197 },
+                            PasswordHash = new byte[] { 49, 79, 240, 219, 165, 172, 152, 8, 108, 226, 206, 87, 81, 69, 232, 95, 205, 67, 176, 237, 54, 41, 153, 249, 111, 7, 117, 215, 241, 200, 13, 191, 162, 118, 32, 204, 3, 53, 183, 188, 89, 170, 123, 78, 141, 80, 37, 200, 245, 156, 138, 189, 210, 176, 168, 61, 38, 177, 85, 104, 135, 185, 228, 116 },
+                            PasswordHashKey = new byte[] { 55, 161, 193, 120, 63, 25, 186, 227, 208, 129, 225, 180, 195, 16, 253, 114, 127, 242, 243, 142, 155, 22, 127, 119, 232, 105, 224, 51, 20, 161, 101, 3, 211, 39, 27, 186, 13, 45, 95, 233, 35, 79, 184, 55, 87, 140, 125, 211, 141, 113, 32, 22, 18, 200, 199, 69, 196, 134, 87, 132, 181, 210, 25, 125, 162, 146, 6, 25, 146, 183, 165, 63, 77, 43, 239, 78, 222, 74, 215, 151, 8, 165, 176, 96, 128, 142, 216, 236, 148, 33, 66, 62, 251, 123, 157, 32, 123, 243, 160, 15, 161, 68, 178, 149, 245, 8, 75, 247, 202, 103, 238, 173, 64, 61, 169, 61, 222, 6, 170, 102, 65, 126, 120, 85, 97, 194, 34, 161 },
                             Phone = "9333555908",
-                            Role = 0
+                            Role = 0,
+                            Status = 1
                         });
                 });
 
@@ -270,6 +325,28 @@ namespace MovieBookingBackend.Migrations
                     b.Navigation("Showtime");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("MovieBookingBackend.Models.EmailVerification", b =>
+                {
+                    b.HasOne("MovieBookingBackend.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("MovieBookingBackend.Models.QRCode", b =>
+                {
+                    b.HasOne("MovieBookingBackend.Models.Booking", "Booking")
+                        .WithOne("QRCode")
+                        .HasForeignKey("MovieBookingBackend.Models.QRCode", "BookingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Booking");
                 });
 
             modelBuilder.Entity("MovieBookingBackend.Models.Seat", b =>
@@ -310,6 +387,9 @@ namespace MovieBookingBackend.Migrations
 
             modelBuilder.Entity("MovieBookingBackend.Models.Booking", b =>
                 {
+                    b.Navigation("QRCode")
+                        .IsRequired();
+
                     b.Navigation("Seats");
                 });
 

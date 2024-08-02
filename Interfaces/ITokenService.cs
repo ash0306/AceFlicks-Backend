@@ -4,6 +4,6 @@ namespace MovieBookingBackend.Interfaces
 {
     public interface ITokenService
     {
-        public string GetUserToken(User user);
+        public Task<string> GetUserToken(User user);
     }
 }

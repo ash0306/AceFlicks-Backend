@@ -1,3 +1,5 @@
+using Azure.Identity;
+using Azure.Security.KeyVault.Secrets;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -21,7 +23,7 @@ namespace MovieBookingBackend
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
 
@@ -129,9 +131,17 @@ namespace MovieBookingBackend
             #endregion
 
             #region Contexts
+            const string DBsecretName = "AceTicketsdbConnectionString";
+            var keyVaultName = "AceTicketsVault";
+            var kvUri = $"https://{keyVaultName}.vault.azure.net";
+            var client = new SecretClient(new Uri(kvUri), new DefaultAzureCredential());
+            var secret = await client.GetSecretAsync(DBsecretName);
+            var connectionString = secret.Value.Value;
+
             builder.Services.AddDbContext<MovieBookingContext>(
-                options => options.UseSqlServer(builder.Configuration.GetConnectionString("defaultConnection"))
-                );
+                options => options.UseSqlServer(connectionString));
+
+
             #endregion
 
             #region Repositories
