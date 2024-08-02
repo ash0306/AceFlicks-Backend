@@ -22,11 +22,11 @@ namespace MovieBookingBackend.Services
 
         public async Task<string> GetSecretAsync()
         {
-            const string DBsecretName = "AceTicketsJwtKey";
+            const string secretName = "AceTicketsJwtKey";
             var keyVaultName = "AceTicketsVault";
             var kvUri = $"https://{keyVaultName}.vault.azure.net";
             var client = new SecretClient(new Uri(kvUri), new DefaultAzureCredential());
-            var secret = await client.GetSecretAsync(DBsecretName);
+            var secret = await client.GetSecretAsync(secretName);
             Console.WriteLine(secret);
             return secret.Value.Value;
         }
