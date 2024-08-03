@@ -82,7 +82,7 @@ namespace MovieBookingBackend
             const string JWT = "AceTicketsJwtKey";
             var secretJwt = await client.GetSecretAsync(JWT);
             var secretToken = secretJwt.Value.Value;
-            Console.WriteLine(secretToken);
+            //Console.WriteLine(secretToken);
             #region Authentication
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>

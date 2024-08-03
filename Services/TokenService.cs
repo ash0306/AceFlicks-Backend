@@ -27,7 +27,7 @@ namespace MovieBookingBackend.Services
             var kvUri = $"https://{keyVaultName}.vault.azure.net";
             var client = new SecretClient(new Uri(kvUri), new DefaultAzureCredential());
             var secret = await client.GetSecretAsync(secretName);
-            Console.WriteLine(secret);
+            //Console.WriteLine(secret);
             return secret.Value.Value;
         }
 
