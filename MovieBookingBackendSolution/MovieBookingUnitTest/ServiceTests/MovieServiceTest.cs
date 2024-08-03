@@ -39,7 +39,7 @@ namespace MovieBookingUnitTest.ServiceTests
             var config = new MapperConfiguration(cfg => cfg.AddProfile<MappingProfile>());
             _mapper = config.CreateMapper();
 
-            _logger = new LoggerTestory().CreateLogger<MovieServices>();
+            _logger = new LoggerFactory().CreateLogger<MovieServices>();
             _movieServices = new MovieServices(_movieRepository, _mapper, _logger);
 
             var movie = new Movie
