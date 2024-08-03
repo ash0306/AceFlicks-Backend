@@ -31,7 +31,7 @@ namespace MovieBookingBackend.Contexts
                     Id = 101,
                     Name = "Andrew",
                     Email = "andrew@gmail.com",
-                    Phone = "9333555908",
+                    Phone = "9988674562",
                     PasswordHashKey = hmac.Key,
                     PasswordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes("andrew123")),
                     Role = UserRole.Admin,
