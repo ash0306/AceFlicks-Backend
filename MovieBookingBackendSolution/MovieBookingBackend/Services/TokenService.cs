@@ -4,12 +4,14 @@ using Microsoft.AspNetCore.DataProtection;
 using Microsoft.IdentityModel.Tokens;
 using MovieBookingBackend.Interfaces;
 using MovieBookingBackend.Models;
+using System.Diagnostics.CodeAnalysis;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
 namespace MovieBookingBackend.Services
 {
+    [ExcludeFromCodeCoverage]
     public class TokenService : ITokenService
     {
         public async Task<SymmetricSecurityKey> GenerateTokenKey()

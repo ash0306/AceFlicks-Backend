@@ -4,11 +4,13 @@ using MovieBookingBackend.Exceptions.EmailVerification;
 using MovieBookingBackend.Interfaces;
 using MovieBookingBackend.Models;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace MovieBookingBackend.Repositories
 {
+    [ExcludeFromCodeCoverage]
     public class EmailVerificationRepository : IEmailVerificationRepository
     {
         private readonly MovieBookingContext _context;

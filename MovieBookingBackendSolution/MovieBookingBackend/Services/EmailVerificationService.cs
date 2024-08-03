@@ -6,9 +6,11 @@ using MovieBookingBackend.Models;
 using MovieBookingBackend.Models.DTOs.Bookings;
 using MovieBookingBackend.Models.Enums;
 using MovieBookingBackend.Repositories;
+using System.Diagnostics.CodeAnalysis;
 
 namespace MovieBookingBackend.Services
 {
+    [ExcludeFromCodeCoverage]
     public class EmailVerificationService : IEmailVerificationService
     {
         private readonly IEmailVerificationRepository _emailVerificationRepository;

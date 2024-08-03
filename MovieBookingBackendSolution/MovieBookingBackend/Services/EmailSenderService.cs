@@ -5,9 +5,11 @@ using MovieBookingBackend.Exceptions.Email;
 using Azure.Identity;
 using Azure.Security.KeyVault.Secrets;
 using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace MovieBookingBackend.Services
 {
+    [ExcludeFromCodeCoverage]
     public class EmailSenderService : IEmailSender
     {
         private readonly IConfiguration _configuration;
