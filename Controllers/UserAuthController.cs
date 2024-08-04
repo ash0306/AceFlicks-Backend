@@ -147,11 +147,12 @@ namespace MovieBookingBackend.Controllers
         [HttpPost("verify/generateCode")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> GenerateVerificationCode(int userId)
+        public async Task<IActionResult> GenerateVerificationCode(string userEmail)
         {
             try
             {
-                await _emailVerificationService.CreateEmailVerification(userId);
+                var user = await _userService.GetUserByEmail(userEmail);
+                await _emailVerificationService.CreateEmailVerification(user.Id);
                 return Ok(new { message = "Verification code generated successfully." });
             }
             catch (Exception ex)
@@ -160,14 +161,15 @@ namespace MovieBookingBackend.Controllers
             }
         }
 
-        [HttpPost("verify/verifyCode/{verificationCode}")]
+        [HttpPost("verify/verifyCode")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> VerifyCode(int userId, [RegularExpression(@"^\d{6}$")] string verificationCode)
+        public async Task<IActionResult> VerifyCode(string userEmail, [RegularExpression(@"^\d{6}$")] string verificationCode)
         {
             try
             {
-                var isSuccess = await _emailVerificationService.VerifyEmail(userId, verificationCode);
+                var user = await _userService.GetUserByEmail(userEmail);
+                var isSuccess = await _emailVerificationService.VerifyEmail(user.Id, verificationCode);
 
                 return Ok(new { message = "Verified successfully." });
             }
