@@ -147,31 +147,13 @@ namespace MovieBookingBackend.Services
         /// <returns>A Booking object</returns>
         private async Task<Booking> AddBookingDTOtoBooking(AddBookingDTO addBookingDTO)
         {
-            float totalPrice = await CalculateTotalPrice(addBookingDTO);
             Booking booking = new Booking()
             {
                 UserId = addBookingDTO.UserId,
                 ShowtimeId = addBookingDTO.ShowtimeId,
-                TotalPrice = totalPrice
+                TotalPrice = addBookingDTO.TotalPrice
             };
             return booking;
-        }
-
-        /// <summary>
-        /// Calculates the total price of the booking
-        /// </summary>
-        /// <param name="addBookingDTO">DTO containing booking details</param>
-        /// <returns>Total price of the booking</returns>
-        private async Task<float> CalculateTotalPrice(AddBookingDTO addBookingDTO)
-        {
-            int noOfSeats = addBookingDTO.Seats.Count();
-            Showtime showtime = await _showtimeRepository.GetById(addBookingDTO.ShowtimeId);
-
-            float totalPrice = showtime.TicketPrice * noOfSeats;
-            float convenienceFee = (totalPrice * 10) / 100;
-            float gst = (convenienceFee * 18) / 100;
-            totalPrice = totalPrice * convenienceFee + gst;
-            return totalPrice;
         }
 
         /// <summary>

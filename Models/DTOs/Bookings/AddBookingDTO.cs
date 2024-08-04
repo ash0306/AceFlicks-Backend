@@ -12,5 +12,7 @@ namespace MovieBookingBackend.Models.DTOs.Bookings
         [Required]
         [MinLength(1)]
         public IList<int> Seats { get; set; }
+        [Required]
+        public float TotalPrice { get; set; }
     }
 }

@@ -125,7 +125,7 @@ namespace MovieBookingBackend.Repositories
         {
             var emailVerification = await _context.EmailVerifications
                 .Include(ev => ev.User)
-                .FirstOrDefaultAsync(ev => ev.Id == key);
+                .FirstOrDefaultAsync(ev => ev.UserId == key);
             if (emailVerification == null)
             {
                 throw new NoSuchEmailVerificationException($"No email verification with ID {key} was found");
