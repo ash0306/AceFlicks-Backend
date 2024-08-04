@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using MovieBookingBackend.Exceptions.Auth;
 using MovieBookingBackend.Exceptions.EmailVerification;
 using MovieBookingBackend.Exceptions.User;
 using MovieBookingBackend.Interfaces;
@@ -89,6 +90,11 @@ namespace MovieBookingBackend.Controllers
                     Expires = DateTimeOffset.UtcNow.AddHours(8)
                 });
                 return Ok(loginReturnDTO);
+            }
+            catch (UserNotActiveException unae)
+            {
+                _logger.LogCritical(unae.Message, unae);
+                return NotFound(new ErrorModel(404, unae.Message));
             }
             catch (Exception ex)
             {
