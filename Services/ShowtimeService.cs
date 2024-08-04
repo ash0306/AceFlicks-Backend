@@ -219,29 +219,17 @@ namespace MovieBookingBackend.Services
                 {
                     var showtime = _mapper.Map<ShowtimeDTO>(item);
                     showtime.Theatre = item.Theatre.Name;
+                    showtime.TheatreLocation = item.Theatre.Location;
                     showtime.Movie = item.Movie.Title;
                     showtime.MoviePoster = item.Movie.ImageUrl;
                     showtimeDTOs.Add(showtime);
                 }
-                var groupedShowtimes = upcomigShowtimes
-                    .GroupBy(s => s.Theatre.Name)
+                var groupedShowtimes = showtimeDTOs
+                    .GroupBy(s => new {s.Theatre, s.TheatreLocation})
                     .Select(g => new ShowtimeGroupDTO
                     {
-                        Name = g.Key,
-                        Showtimes = g.Select(s => new ShowtimeDTO
-                        {
-                            Id = s.Id,
-                            StartTime = s.StartTime,
-                            EndTime = s.EndTime,
-                            Status = s.Status.ToString(),
-                            Movie = s.Movie.Title,
-                            Theatre = s.Theatre.Name,
-                            TheatreLocation = s.Theatre.Location,
-                            MoviePoster = s.Movie.ImageUrl,
-                            TotalSeats = s.TotalSeats,
-                            AvailableSeats = s.AvailableSeats,
-                            TicketPrice = s.TicketPrice
-                        }).ToList()
+                        Name = $"{g.Key.Theatre} - {g.Key.TheatreLocation}",
+                        Showtimes = g.ToList()
                     })
                     .ToList();
                 return groupedShowtimes;
@@ -289,10 +277,10 @@ namespace MovieBookingBackend.Services
                 }
 
                 var groupedShowtimes = showtimeDTOs
-                    .GroupBy(s => new { s.Theatre, s.TheatreLocation })
+                    .GroupBy(s => s.Movie)
                     .Select(g => new ShowtimeGroupDTO
                     {
-                        Name = $"{g.Key.Theatre} - {g.Key.TheatreLocation}",
+                        Name = g.Key,
                         Showtimes = g.ToList()
                     })
                     .ToList();
