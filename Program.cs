@@ -82,7 +82,6 @@ namespace MovieBookingBackend
             const string JWT = "AceTicketsJwtKey";
             var secretJwt = await client.GetSecretAsync(JWT);
             var secretToken = secretJwt.Value.Value;
-            //Console.WriteLine(secretToken);
             #region Authentication
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
@@ -122,7 +121,7 @@ namespace MovieBookingBackend
             builder.Services.AddSingleton<UpdateShowtimeStatusJob>();
             builder.Services.AddSingleton(new JobSchedule(
                 jobType: typeof(UpdateShowtimeStatusJob),
-                cronExpression: "0 0 */2 * * ?" //every 2 hours
+                cronExpression: "0 0 */1 * * ?" //every 1 hour
                 ));
 
             builder.Services.AddSingleton<UpdateSeatStatusJob>();
