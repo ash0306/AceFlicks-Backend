@@ -31,7 +31,7 @@ namespace MovieBookingBackend.CRON.Jobs
                     {
                         showtime.Status = ShowtimeStatus.Active;
                     }
-                    else
+                    else if(showtime.Status == ShowtimeStatus.Active && showtime.StartTime < currentDate)
                     {
                         showtime.Status = ShowtimeStatus.Inactive;
                     }
