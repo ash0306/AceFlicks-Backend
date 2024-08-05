@@ -27,14 +27,15 @@ namespace MovieBookingBackend.CRON.Jobs
 
                 foreach (var showtime in showtimes)
                 {
-                    if(showtime.Status == ShowtimeStatus.Inactive && showtime.StartTime > currentDate)
+                    if(showtime.Status==ShowtimeStatus.Inactive && showtime.StartTime > currentDate)
                     {
                         showtime.Status = ShowtimeStatus.Active;
                     }
-                    else if(showtime.Status == ShowtimeStatus.Active && showtime.StartTime <= currentDate)
+                    else
                     {
                         showtime.Status = ShowtimeStatus.Inactive;
                     }
+                    await showtimeRepository.Update(showtime);
                 }
                 _logger.LogInformation($"Showtime Status update completed at {DateTime.Now}");
             }

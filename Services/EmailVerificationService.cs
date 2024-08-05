@@ -210,8 +210,8 @@ namespace MovieBookingBackend.Services
                                         <a href='https://facebook.com/acetickets'>Facebook</a> | 
                                         <a href='https://instagram.com/acetickets'>Instagram</a>
                                     </p>
-                                    <p>© 2024 VibeVault, All Rights Reserved</p>
-                                    <p>123 Music Street, Suite 400, Chennai, India</p>
+                                    <p>© 2024 AceTickets, All Rights Reserved</p>
+                                    <p>123 East Street, MarineFord, Chennai, India</p>
                                 </div>
                             </div>
                         </body>
